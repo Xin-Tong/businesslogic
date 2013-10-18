@@ -72,7 +72,7 @@ class ApiController extends ApiBaseController
     */
   public function version()
   {
-    getAuthentication()->requireAuthentication();
+    getAuthentication()->requireAuthentication(array('C'));
     $apiVersion = Request::getLatestApiVersion();
     $systemVersion = getConfig()->get('site')->lastCodeVersion;
     $databaseVersion = getDb()->version();
