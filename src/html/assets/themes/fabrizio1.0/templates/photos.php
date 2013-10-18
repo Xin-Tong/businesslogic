@@ -7,7 +7,7 @@
       <small>
         (
           <?php number_format($this->utility->safe($album['count'])); ?> photos
-          <?php if($this->user->isAdmin()) { ?>
+          <?php if($this->permission->canUpload($album['id'])) { ?>
             <span class="hide"> | <a href="#" class="shareAlbum share trigger" data-id="<?php $this->utility->safe($album['id']); ?>" title="Share this album"><i class="icon-share"></i> Share</a></span>
           <?php } ?>
           &middot; <i class="icon-sort-by-order" title="Photos sorted oldest taken to newest"></i>

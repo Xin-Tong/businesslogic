@@ -182,7 +182,7 @@ class PhotoController extends BaseController
     $this->plugin->setData('filters', $filterAttributes);
 
     $body = $this->theme->get($this->utility->getTemplate('photos.php'), array('album' => $album, 'tags' => $tags, 'photos' => $photos, 'pages' => $pages, 'options' => $filterOpts));
-    $this->theme->display($this->utility->getTemplate('template.php'), array('body' => $body, 'page' => 'photos'));
+    $this->theme->display($this->utility->getTemplate('template.php'), array('body' => $body, 'page' => 'photos', 'album' => $album/* pass album through for header-secondary */));
   }
 
   /**

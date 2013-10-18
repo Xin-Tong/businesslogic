@@ -11,8 +11,22 @@ class ApiTokenController extends ApiController
 
   public function create($type, $data)
   {
-    getAuthentication()->requireAuthentication();
+    // if trying to create an album token then we check if the user has permission
+    // if trying to create a photo token then we check against the API for permissions
+    // TODO #1403 clean up the else case
+    if($type == 'album')
+    {
+      getAuthentication()->requireAuthentication(array('C'), $data);
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array('C'));
+      $checkPhotoPerms = $this->api->invoke(sprintf('/photo/%s/view.json', $data), EpiRoute::httpGet);
+      if($checkPhotoPerms['code'] !== 200)
+        OPException::raise(new OPAuthorizationPermissionException('No access to create a sharing token for this photo'));
+    }
     getAuthentication()->requireCrumb();
+
     $params = $_POST;
     $params['type'] = $type;
     $params['data'] = $data;

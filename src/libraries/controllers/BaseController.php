@@ -26,5 +26,6 @@ class BaseController extends ApiBaseController
     $this->template->utility = $this->utility;
     $this->template->url = $this->url;
     $this->template->user = new User;
+    $this->template->permission = new Permission;
   }
 }
