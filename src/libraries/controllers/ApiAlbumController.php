@@ -80,6 +80,7 @@ class ApiAlbumController extends ApiBaseController
 
   public function list_()
   {
+    $permissionObj = new Permission;
     $email = $this->user->getEmailAddress();
     $pageSize = $this->config->pagination->albums;
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -93,16 +94,16 @@ class ApiAlbumController extends ApiBaseController
       return $this->error('Could not retrieve albums', false);
 
     $skipEmpty = isset($_GET['skipEmpty']) && $_GET['skipEmpty'] == 1 ? 1 : 0;
+    $totalRows = $albums[0]['totalRows'];
 
-    // If the request is authenticated AND the user is not an admin then we have to descend into groups for permissions
+    // If the request is authenticated AND the user is not an admin AND has access to > 1 album then we have to descend into groups for permissions
     // Else we just leave the albums as is and pull counts based on the appropriate column
-    if(getAuthentication()->isRequestAuthenticated() && !$this->user->isAdmin())
+    if(getAuthentication()->isRequestAuthenticated() && !$this->user->isAdmin() && count($permissionObj->allowedAlbums()))
     {
       $permission = Permission::read;
       if(isset($_GET['permission']))
         $permission = $_GET['permission'];
 
-      $totalRows = $albums[0]['totalRows'];
       $permissionObj = new Permission;
       $allowedAlbums = $permissionObj->allowedAlbums($permission);
       foreach($albums as $key => $alb)
@@ -127,9 +128,6 @@ class ApiAlbumController extends ApiBaseController
           }
         }
       }
-      // since we might remove elements we need to rekey $albums
-      $albums = array_values($albums);
-      $albums[0]['totalRows'] = $totalRows;
     }
     else
     {
@@ -148,6 +146,10 @@ class ApiAlbumController extends ApiBaseController
         }
       }
     }
+
+    // since we might have removed elements we need to rekey $albums
+    $albums = array_values($albums);
+    $albums[0]['totalRows'] = $totalRows;
 
     if(!empty($albums))
     {
