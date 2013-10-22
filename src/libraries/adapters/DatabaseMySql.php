@@ -1989,16 +1989,26 @@ class DatabaseMySql implements DatabaseInterface
             break;
           case 'sortBy':
             // default is dateTaken,desc
-            if($value === 'dateTaken,desc')
-              $sortBy = 'ORDER BY dateTaken DESC';
-            elseif($value === 'dateTaken,asc')
-              $sortBy = 'ORDER BY `dateTaken` ASC';
-            elseif($value === 'dateUploaded,desc')
-              $sortBy = 'ORDER BY `dateUploaded` DESC';
-            elseif($value === 'dateUploaded,asc')
-              $sortBy = 'ORDER BY `dateUploaded` ASC';
-            else
-              $sortBy = 'ORDER BY ' . $this->_(str_replace(',', ' ', $value));
+            switch($value)
+            {
+              case 'dateTaken,desc':
+                $sortBy = 'ORDER BY dateTaken DESC';
+                break;
+              case 'dateTaken,asc':
+                $sortBy = 'ORDER BY `dateTaken` ASC';
+                break;
+              case 'dateUploaded,desc':
+                $sortBy = 'ORDER BY `dateUploaded` DESC';
+                break;
+              case 'dateUploaded,asc':
+                $sortBy = 'ORDER BY `dateUploaded` ASC';
+                break;
+              default:
+                if($table === 'photo')
+                  $sortBy = 'ORDER BY dateSortByDay DESC, dateTaken ASC';
+                else if($table === 'activity')
+                  $sortBy =  'ORDER BY dateCreated DESC';
+            }
             $field = $this->_(substr($value, 0, strpos($value, ',')));
             $where = $this->buildWhere($where, "{$field} is not null");
             break;

@@ -139,10 +139,24 @@ class PhotoController extends BaseController
   public function list_($filterOpts = null)
   {
     $returnSizes = sprintf('%s,%s', $this->config->photoSizes->thumbnail, $this->config->photoSizes->detail);
+
+    $isAlbum = preg_match('/album-([^\/]+)/', $filterOpts, $filterAlbumMatches);
+    $isTags = preg_match('/tags-([^\/]+)/', $filterOpts, $filterTagsMatches);
+
     $getParams = array();
     if(!empty($_SERVER['QUERY_STRING']))
       parse_str($_SERVER['QUERY_STRING'], $getParams);
-    $params = array('_GET' => array_merge($getParams, array('returnSizes' => $returnSizes)));
+
+    $additionalParams = array('returnSizes' => $returnSizes, 'sortBy' => 'dateUploaded,desc');
+    if($isAlbum)
+    {
+      if(!isset($getParams['sortBy']))
+        $additionalParams['sortBy'] = 'dateTaken,asc';
+      $additionalParams['pageSize'] = '0';
+    }
+
+    $params = array('_GET' => array_merge($additionalParams, $getParams));
+
     if($filterOpts)
       $photos = $this->api->invoke("/photos/{$filterOpts}/list.json", EpiRoute::httpGet, $params);
     else
@@ -165,16 +179,16 @@ class PhotoController extends BaseController
 
     // TODO we should clean this up somehow
     $album = $tags = null;
-    if(preg_match('/album-([^\/]+)/', $filterOpts, $filterMatches))
+    if($isAlbum)
     {
-      $albumResp = $this->api->invoke("/album/{$filterMatches[1]}/view.json", EpiRoute::httpGet);
+      $albumResp = $this->api->invoke("/album/{$filterAlbumMatches[1]}/view.json", EpiRoute::httpGet);
       $album = $albumResp['result'];
       $filterAttributes[] = 'album';
       $this->plugin->setData('album', $album);
     }
-    if(preg_match('/tags-([^\/]+)/', $filterOpts, $filterMatches))
+    if($isTags)
     {
-      $tags = (array)explode(',', $filterMatches[1]);
+      $tags = (array)explode(',', $filterTagsMatches[1]);
       $filterAttributes[] = 'tags';
       $this->plugin->setData('tags', $tags);
     }

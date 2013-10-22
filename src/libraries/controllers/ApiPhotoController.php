@@ -240,9 +240,8 @@ class ApiPhotoController extends ApiBaseController
     $db = getDb();
 
     // on gallery sort by date uploaded, album date taken #1340
-    $filters['sortBy'] = 'dateUploaded,desc';
-    if(isset($filters['album']))
-      $filters['sortBy'] = 'dateTaken,asc';
+    if(isset($_GET['sortBy']))
+      $filters['sortBy'] = $_GET['sortBy'];
 
     $photos = $db->getPhotos($filters, $pageSize);
 
@@ -907,7 +906,7 @@ class ApiPhotoController extends ApiBaseController
 
     // This section enables in path parameters which are normally GET
     $pageSize = $this->config->pagination->photos;
-    $filters = array('sortBy' => 'dateTaken,desc');
+    $filters = array();
     if($filterOpts !== null)
     {
       $filterOpts = (array)explode('/', $filterOpts);
