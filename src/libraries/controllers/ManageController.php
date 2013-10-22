@@ -24,7 +24,9 @@ class ManageController extends BaseController
 
   public function administrators()
   {
-    $params = array('crumb' => $this->session->get('crumb'), 'page' => 'administrators');
+    $planObj = new Plan;
+    $administratorLimit = $planObj->getAdministratorLimit();
+    $params = array('crumb' => $this->session->get('crumb'), 'page' => 'administrators', 'administratorLimit' => $administratorLimit);
     $params['admins'] = array();
     if(isset($this->config->user->admins))
       $params['admins'] = (array)explode(',', $this->config->user->admins);
@@ -69,19 +71,21 @@ class ManageController extends BaseController
     $this->theme->display('template.php', array('body' => $body, 'page' => 'manage'));
   }
 
-  public function groupsMember($email)
+  public function groupsCollaborator($email)
   {
     $groupsResp = $this->api->invoke(sprintf('/groups/member/%s/view.json', $email));
-    $params = array('crumb' => $this->session->get('crumb'), 'page' => 'groups-member', 'email' => $email, 'groups' => $groupsResp['result']);
+    $params = array('crumb' => $this->session->get('crumb'), 'page' => 'groups-collaborator', 'email' => $email, 'groups' => $groupsResp['result']);
     $bodyTemplate = sprintf('%s/manage-groups.php', $this->config->paths->templates);
     $body = $this->template->get($bodyTemplate, $params);
     $this->theme->display('template.php', array('body' => $body, 'page' => 'manage'));
   }
 
-  public function groupsMembers()
+  public function groupsCollaborators()
   {
+    $planObj = new Plan;
+    $collaboratorLimit = $planObj->getCollaboratorLimit();
     $membersResp = $this->api->invoke('/groups/members.json');
-    $params = array('crumb' => $this->session->get('crumb'), 'page' => 'groups-members', 'members' => $membersResp['result']);
+    $params = array('crumb' => $this->session->get('crumb'), 'page' => 'groups-collaborators', 'members' => $membersResp['result'], 'collaboratorLimit' => $collaboratorLimit);
     $bodyTemplate = sprintf('%s/manage-groups.php', $this->config->paths->templates);
     $body = $this->template->get($bodyTemplate, $params);
     $this->theme->display('template.php', array('body' => $body, 'page' => 'manage'));

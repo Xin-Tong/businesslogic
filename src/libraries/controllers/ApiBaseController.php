@@ -18,6 +18,7 @@ class ApiBaseController
   const statusForbidden = 403;
   const statusNotFound = 404;
   const statusConflict = 409;
+  const statusExceeded = 999;
 
   public function __construct()
   {
@@ -59,6 +60,19 @@ class ApiBaseController
   /**
     * Conflict, HTTP 409
     * This is used when there's a conflict/duplicate
+    *
+    * @param string $message A friendly message to describe the operation
+    * @param mixed $result The result with values needed by the caller to take action.
+    * @return string Standard JSON envelope
+    */
+  public function exceeded($message, $result = null)
+  {
+    return $this->json($message, self::statusExceeded, $result);
+  }
+
+  /**
+    * Exceeded, HTTP 999
+    * If a limit was reached then we return this response code
     *
     * @param string $message A friendly message to describe the operation
     * @param mixed $result The result with values needed by the caller to take action.

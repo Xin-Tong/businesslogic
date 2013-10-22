@@ -80,11 +80,17 @@
     };
     this.groupMemberAddSuccess = function(response) {
       var $button = $(this), $input = $button.siblings('input[name="emails"]'), emails = response.result, message, $userList = $('.userList ul');
-      message = TBX.format.sprintf('You added %s %s to your group successfully.', emails.length, TBX.format.plural('user', emails.length));
-      TBX.notification.show(message, null, 'confirm');
-      OP.Util.fire('callback:replace-spinner', {button: $button, icon:'icon-ok'});
-      for(i in emails) {
-        $('<li data-email="li-'+emails[i]+'">'+emails[i]+' <a href="#/group/'+__initData.id+'/member/remove" class="groupMemberRemove" data-email="'+emails[i]+'"><i class="icon-trash"></i> delete</a></li>').prependTo($userList);
+      if(response.code === 200) {
+        message = TBX.format.sprintf('You added %s %s to your group successfully.', emails.length, TBX.format.plural('user', emails.length));
+        for(i in emails) {
+          $('<li data-email="li-'+emails[i]+'">'+emails[i]+' <a href="#/group/'+__initData.id+'/member/remove" class="groupMemberRemove" data-email="'+emails[i]+'"><i class="icon-trash"></i> delete</a></li>').prependTo($userList);
+        }
+        TBX.notification.show(message, null, 'confirm');
+        OP.Util.fire('callback:replace-spinner', {button: $button, icon:'icon-ok'});
+      } else if(response.code === 999) {
+        message = TBX.format.sprintf('You\'ve reached your collaborator limit of %s.', emails.limit);
+        TBX.notification.show(message, null, 'error');
+        OP.Util.fire('callback:replace-spinner', {button: $button, icon:'icon-warning-sign'});
       }
       $input.attr('value','').focus();
     };

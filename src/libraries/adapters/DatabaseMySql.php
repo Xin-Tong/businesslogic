@@ -849,7 +849,7 @@ class DatabaseMySql implements DatabaseInterface
     if(!$plan)
       return false;
 
-    return json_decode($plan['data']);
+    return json_decode($plan['data'], 1);
   }
 
   /**

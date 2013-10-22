@@ -98,6 +98,18 @@ class ApiGroupController extends ApiBaseController
       return $this->error('No email addresses provided', false);
 
     $emails = (array)explode(',', $_POST['emails']);
+
+    // if we're adding new members we want to check if this request exceeds the limit
+    if($action == 'add')
+    {
+      $planObj = new Plan;
+      $collaboratorLimit = $planObj->getCollaboratorLimit();
+      $currentMemberCount = count($this->group->getMembersAcrossGroups());
+      $countMembersToAdd = count($this->group->getNewMembersFromList($emails));
+      if(($currentMemberCount + $countMembersToAdd) > $collaboratorLimit)
+        return $this->exceeded('Collaborator limit exceeded', array('limit' => $collaboratorLimit));
+    }
+
     $res = $this->group->manageMembers($id, $emails, $action);
 
     if($res === false)

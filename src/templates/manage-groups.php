@@ -2,7 +2,7 @@
   <div class="span2">
     <ul class="nav nav-tabs nav-stacked affix sub-navigation">
       <li class="<?php if($page === 'group-list') { ?>active <?php } ?>"><a href="/manage/groups/list"><i class="icon-fixed-width icon-group"></i> Groups</a></li>
-      <li class="<?php if($page === 'groups-members') { ?>active <?php } ?>"><a href="/manage/groups/members"><i class="icon-fixed-width icon-user"></i> Group Members</a></li>
+      <li class="<?php if($page === 'groups-collaborators') { ?>active <?php } ?>"><a href="/manage/groups/collaborators"><i class="icon-fixed-width icon-user"></i> Collaborators</a></li>
       <li class="<?php if($page === 'administrators') { ?>active <?php } ?>"><a href="/manage/administrators"><i class="icon-fixed-width icon-user-md"></i> Administrators</a></li>
     </ul>
   </div>
@@ -11,11 +11,11 @@
       <div class="row collaborators">
         <div class="span10">
           <form method="post" action="/manage/settings">
-            <h2>Collaborators</h2>
+            <h2>Administrators</h2>
             <p class="blurb">
               <i class="icon-info-sign"></i> Enter email addresses for others you'd like to grant <strong><em>full</em></strong> access to your account. They'll receive an email to set a password.
             </p>
-            <?php for($i=0; $i<4; $i++) { ?>
+            <?php for($i=0; $i<$administratorLimit; $i++) { ?>
               <div><input type="text" name="admins[<?php echo $i; ?>]" <?php if(isset($admins[$i])) { ?> value="<?php $this->utility->safe($admins[$i]); ?>" <?php } ?> placeholder="user<?php echo ($i+1); ?>@example.com"></div>
             <?php } ?>
             <div class="btn-toolbar"><button class="btn btn-brand addSpinner">Save</button></div>
@@ -25,15 +25,15 @@
           </form>
         </div>
       </div>
-    <?php } elseif($page === 'groups-members') { ?>
-      <div class="row groups-members">
+    <?php } elseif($page === 'groups-collaborators') { ?>
+      <div class="row groups-collaborators">
         <div class="span10">
-          <h2>Group Members</h2>
-          <p class="blurb"><i class="icon-info-sign"></i> This is a list of users you've granted access across all of your groups.</p>
+          <h2>Collaborators Members <small>You're using <?php echo count($members); ?> of <?php $this->utility->safe($collaboratorLimit); ?> collaborators</small></h2>
+          <p class="blurb"><i class="icon-info-sign"></i> This is a list of collaborators you've granted access across all of your groups.</p>
           <?php if(empty($members)) { ?>
-            You haven't added any users to your groups.
+            You haven't added any collaborators to your groups.
           <?php } else { ?>
-            <ul class="members unstyled">
+            <ul class="collaborators unstyled">
               <?php foreach($members as $memb) { ?>
                 <li>
                   <div class="row">
@@ -44,7 +44,7 @@
                         <i class="icon-user"></i>
                       <?php } ?>
                     </div>
-                    <div class="span9 email"><a href="/manage/groups/member/<?php $this->utility->safe(urlencode($memb['email'])); ?>/view"><?php $this->utility->safe($memb['email']); ?></a></div>
+                    <div class="span9 email"><a href="/manage/groups/collaborator/<?php $this->utility->safe(urlencode($memb['email'])); ?>/view"><?php $this->utility->safe($memb['email']); ?></a></div>
                   </div>
                 </li>
               <?php } ?>
@@ -52,13 +52,13 @@
           <?php } ?>
         </div>
       </div>
-    <?php } elseif($page === 'groups-member') { ?>
-      <div class="row groups-member">
+    <?php } elseif($page === 'groups-collaborator') { ?>
+      <div class="row groups-collaborator">
         <div class="span10">
           <h2><?php $this->utility->safe($email); ?></h2>
-          <p class="blurb"><i class="icon-info-sign"></i> Below is a list of all the groups this user is a member of.</p>
+          <p class="blurb"><i class="icon-info-sign"></i> Below is a list of all the groups this collaborator is a member of.</p>
           <?php if(empty($groups)) { ?>
-            This user isn't a member of any groups.
+            This collaborator isn't a member of any groups.
           <?php } else { ?>
             <ul class="groups unstyled">
               <?php foreach($groups as $group) { ?>

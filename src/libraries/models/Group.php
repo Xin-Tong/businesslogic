@@ -96,6 +96,17 @@ class Group extends BaseModel
     return $this->db->getGroupsMembers();
   }
 
+  public function getNewMembersFromList($emails)
+  {
+    $members = $this->getMembersAcrossGroups();
+    // TODO check php function to extract colum from multi dimensional array
+    $existingMembers = array();
+    foreach($members as $m)
+      $existingMembers[] = $m['email'];
+
+    return array_diff($emails, $existingMembers);
+  }
+
   public function undelete($id)
   {
     return $this->db->undeleteGroup($id);

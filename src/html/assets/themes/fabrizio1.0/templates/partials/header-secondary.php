@@ -23,5 +23,5 @@
             <li><a href="http://bit.ly/trovebox-for-android" title="Download Trovebox for Android"><i class="icon-android"></i> Android</a></li>
           <?php } elseif($this->utility->isActiveTab('manage')) {?>
             <li class="separator-left"><a href="/manage/settings"><i class="icon-cogs"></i> General Settings</a></li>
-            <li><a href="/manage/groups/list"><i class="icon-group"></i> Groups</a></li>
+            <li><a href="/manage/groups/list"><i class="icon-group"></i> Team Management</a></li>
           <?php } ?>
