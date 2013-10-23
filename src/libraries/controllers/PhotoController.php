@@ -148,11 +148,13 @@ class PhotoController extends BaseController
       parse_str($_SERVER['QUERY_STRING'], $getParams);
 
     $additionalParams = array('returnSizes' => $returnSizes, 'sortBy' => 'dateUploaded,desc');
-    if($isAlbum)
+    if($isAlbum || $isTags)
     {
       if(!isset($getParams['sortBy']))
         $additionalParams['sortBy'] = 'dateTaken,asc';
-      $additionalParams['pageSize'] = '0';
+
+      if($isAlbum)
+        $additionalParams['pageSize'] = '0';
     }
 
     $params = array('_GET' => array_merge($additionalParams, $getParams));
@@ -195,7 +197,12 @@ class PhotoController extends BaseController
 
     $this->plugin->setData('filters', $filterAttributes);
 
-    $body = $this->theme->get($this->utility->getTemplate('photos.php'), array('album' => $album, 'tags' => $tags, 'photos' => $photos, 'pages' => $pages, 'options' => $filterOpts));
+    $photoCount = empty($photos) ? 0 : $photos[0]['totalRows'];
+    $currentSortParts = (array)explode(',', $params['_GET']['sortBy']);
+    $currentSortBy = $params['_GET']['sortBy'];
+    $headingHelper = $this->theme->get($this->utility->getTemplate('partials/photos-sub-heading.php'), array('isAlbum' => $isAlbum, 'currentSortBy' => $currentSortBy, 'sortParts' => $currentSortParts, 'photoCount' => $photoCount));
+
+    $body = $this->theme->get($this->utility->getTemplate('photos.php'), array('album' => $album, 'tags' => $tags, 'photos' => $photos, 'pages' => $pages, 'options' => $filterOpts, 'headingHelper' => $headingHelper));
     $this->theme->display($this->utility->getTemplate('template.php'), array('body' => $body, 'page' => 'photos', 'album' => $album/* pass album through for header-secondary */));
   }
 

@@ -4,20 +4,14 @@
     <h4>
       <i class="icon-th-large"></i>
       <?php $this->utility->safe($album['name']); ?>
-      <small>
-        (
-          <?php number_format($this->utility->safe($album['count'])); ?> photos
-          <?php if($this->permission->canUpload($album['id'])) { ?>
-            <span class="hide"> | <a href="#" class="shareAlbum share trigger" data-id="<?php $this->utility->safe($album['id']); ?>" title="Share this album"><i class="icon-share"></i> Share</a></span>
-          <?php } ?>
-          &middot; <i class="icon-sort-by-order" title="Photos sorted oldest taken to newest"></i>
-        )
-      </small>
+      <?php echo $headingHelper; ?>
     </h4>
     <?php } else if(isset($tags)) { ?>
-      <h4><i class="icon-tags"></i> <?php $this->utility->safe(implode(', ', $tags)); ?> <small>(<?php number_format($this->utility->safe($photos[0]['totalRows'])); ?> photos &middot; <i class="icon-sort-by-order-alt" title="Photos sorted newest uploaded to oldest"></i>)</small></h4>
+      <h4><i class="icon-tags"></i> <?php $this->utility->safe(implode(',', $tags)); ?>
+      <?php echo $headingHelper; ?>
     <?php } else { ?>
-      <h4><i class="icon-picture"></i> Gallery <small>( <?php number_format($this->utility->safe($photos[0]['totalRows'])); ?> photos &middot; <i class="icon-sort-by-order-alt" title="Photos sorted newest uploaded to oldest"></i> )</small></h4>
+      <h4><i class="icon-picture"></i> Gallery
+      <?php echo $headingHelper; ?>
     <?php } ?>
     <?php if(!empty($photos)) { ?>
       <script> var initData = <?php echo json_encode($photos); ?>; var filterOpts = <?php echo json_encode($options); ?>;</script>
