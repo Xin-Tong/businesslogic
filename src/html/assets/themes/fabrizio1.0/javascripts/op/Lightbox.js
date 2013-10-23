@@ -110,8 +110,9 @@
       //toggleDetails :[68]   // d
     },
     
-    _path: location.pathname,
+    _path: location.pathname+location.search,
     _filter: location.pathname.replace('/p/', '/').replace('/photos/', '/').replace('/list', ''),
+    _query: location.search || '',
     _visible: false,
 
     _indexOf : function(model){
@@ -357,7 +358,7 @@
       if( i < 0 ) i = this.store.models.length-1;
       id = this.store.models[i].get('id');
       if( !$('body').hasClass('photo-details') ){
-        router.navigate('/p/'+id+this._filter, {trigger: false});
+        router.navigate('/p/'+id+this._filter+this._query, {trigger: false});
       }
       this.go(i);
     },
@@ -375,7 +376,7 @@
       if( i < this.store.models.length ) {
         if( !$('body').hasClass('photo-details') ){
           id = this.store.models[i].get('id');
-          router.navigate('/p/'+id+this._filter, {trigger: false});
+          router.navigate('/p/'+id+this._filter+this._query, {trigger: false});
         }
         this.go(i);
       }
@@ -393,7 +394,7 @@
     viewDetailPage : function(ev) {
       ev.preventDefault();
       var id = this.model.get('id');
-      location.href = '/p/'+id+this._filter;
+      location.href = '/p/'+id+this._filter+this._query;
     },
 
     tags: function(ev) {

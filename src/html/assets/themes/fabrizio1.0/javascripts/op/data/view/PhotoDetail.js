@@ -433,7 +433,7 @@
       
       this.loadMore( x > c );
       this.updateModel(this.store.get(id));
-      router.navigate('/p/'+id+this._filter+location.search, {trigger: false});
+      router.navigate('/p/'+id+this._filter+this._query, {trigger: false});
     },
     
     loadMore : function( dir ){
