@@ -14,7 +14,7 @@ class Plan extends BaseModel
     $this->user = new User;
     $this->id = $this->user->getAttribute('planId');
     if(empty($this->id))
-      $this->id = self::typeFree;
+      $this->id = self::planFree;
   }
   
   public function getAdministratorLimit()
