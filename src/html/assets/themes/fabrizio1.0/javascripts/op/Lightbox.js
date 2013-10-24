@@ -110,7 +110,8 @@
       //toggleDetails :[68]   // d
     },
     
-    _path: location.pathname+location.search,
+    _path: location.pathname,
+    _pathWithQuery: location.pathname+location.search,
     _filter: location.pathname.replace('/p/', '/').replace('/photos/', '/').replace('/list', ''),
     _query: location.search || '',
     _visible: false,
@@ -240,7 +241,7 @@
       this._visible = false;
       if(this.$el)
         this.$el.fadeOut('fast');
-      router.navigate(this._path, {silent:true});
+      router.navigate(this._pathWithQuery, {silent:true});
       return this;
     },
     
@@ -443,7 +444,6 @@
       model = op.data.store.Photos.get(id);
         
       if( !model ) return $.error('No image in store with id '+id);
-        
       return this.update(model).show();
     }
   });
