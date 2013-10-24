@@ -7,6 +7,9 @@ class Plan extends BaseModel
   const planGold = 'gold';
   const planPlatinum = 'platinum';
 
+  const defaultLimitAdministrators = 4;
+  const defaultLimitCollaborators = 5;
+
   private $user, $id, $plan;
   public function __construct()
   {
@@ -20,12 +23,16 @@ class Plan extends BaseModel
   public function getAdministratorLimit()
   {
     $plan = $this->get();
+    if(!isset($plan['limitAdministrators']))
+      return self::defaultLimitAdministrators;
     return $plan['limitAdministrators'];
   }
   
   public function getCollaboratorLimit()
   {
     $plan = $this->get();
+    if(!isset($plan['limitCollaborators']))
+      return self::defaultLimitCollaborators;
     return $plan['limitCollaborators'];
   }
 
