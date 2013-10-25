@@ -147,16 +147,19 @@ class ApiAlbumController extends ApiBaseController
       }
     }
 
-    // since we might have removed elements we need to rekey $albums
-    $albums = array_values($albums);
-    $albums[0]['totalRows'] = $totalRows;
-
     if(!empty($albums))
     {
-      $albums[0]['currentPage'] = intval($page);
-      $albums[0]['currentRows'] = count($albums);
-      $albums[0]['pageSize'] = intval($pageSize);
-      $albums[0]['totalPages'] = !empty($pageSize) ? ceil($albums[0]['totalRows'] / $pageSize) : 0;
+      // since we might have removed elements we need to rekey $albums
+      $albums = array_values($albums);
+      $albums[0]['totalRows'] = $totalRows;
+
+      if(!empty($albums))
+      {
+        $albums[0]['currentPage'] = intval($page);
+        $albums[0]['currentRows'] = count($albums);
+        $albums[0]['pageSize'] = intval($pageSize);
+        $albums[0]['totalPages'] = !empty($pageSize) ? ceil($albums[0]['totalRows'] / $pageSize) : 0;
+      }
     }
 
     return $this->success('List of albums', $albums);
