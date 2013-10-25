@@ -18,7 +18,7 @@ class ApiOAuthController extends ApiBaseController
 
   public function delete($id)
   {
-    getAuthentication()->requireAuthentication();
+    getAuthentication()->requireAuthentication(array('C'));
     getAuthentication()->requireCrumb();
     $res = getDb()->deleteCredential($id);
     if($res)
