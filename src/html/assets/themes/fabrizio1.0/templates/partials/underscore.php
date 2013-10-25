@@ -17,8 +17,10 @@
   </div>
 </script>
 <script type="tmpl/underscore" id="profile-photo-meta">
-  <% if(photoUrl) { %>
+  <% if(photoUrl.search('gravatar.com') == -1) { %>
     <img class="avatar profile-pic profile-photo" src="<%= photoUrl %>" <% if(photoUrl.search('gravatar.com') == -1) { %>title="Click the profile icon when mousing over any photo to set it as your profile photo." <% } %> />
+  <% } else { %>
+    <i class="to icon-user" alt="Trovebox User"></i>
   <% } %>
 </script>
 
