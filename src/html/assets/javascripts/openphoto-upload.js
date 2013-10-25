@@ -8,7 +8,7 @@ OPU = (function() {
     var bName = b.name;
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
   };
-  var photosUploaded = {success: [], failure: [], duplicate: [], ids: []};
+  var active = false, photosUploaded = {success: [], failure: [], duplicate: [], ids: []};
   return {
       init: function() {
         if(typeof plupload === "undefined")
@@ -57,6 +57,10 @@ OPU = (function() {
               },
               FilesAdded: function(uploader, files) {
                 var queue = uploader.files.concat(files);
+                if(!active) {
+                  active = true;
+                  $(window).on('beforeunload', function() { return 'Are you sure you want to leave this page?'; });
+                }
                 queue.sort(sortByFilename);
                 uploader.files = queue;
               },
@@ -86,6 +90,8 @@ OPU = (function() {
                     if(file.status !== plupload.DONE)
                       failed++;
                   }
+                  active = false;
+                  $(window).off('beforeunload');
                 }
 
                 OP.Util.fire('upload:complete-success', photosUploaded);

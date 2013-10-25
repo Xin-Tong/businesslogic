@@ -3,7 +3,7 @@
     TBX = {};
 
   function Upload() {
-    var dropzone, total = 0, ids = [], duplicateCache = {}, completeObj = {success: 0, duplicate: 0, failed: 0, completed: 0}, progressModel, $form = $('form.upload');
+    var active = false, dropzone, total = 0, ids = [], duplicateCache = {}, completeObj = {success: 0, duplicate: 0, failed: 0, completed: 0}, progressModel, $form = $('form.upload');
 
     var fileFinishedHandler = function(file, response) {
       var message, $previewElement = $(file.previewElement);
@@ -25,6 +25,8 @@
       ids.push(response.result.id);
 
       if(completeObj.completed === total) {
+        active = false;
+        $(window).off('beforeunload');
         progressModel.completed();
 
         if(completeObj.failed === 0) {
@@ -82,6 +84,10 @@
       });
       
       dropzone.on("addedfile", function(file) {
+        if(!active) {
+          active = true;
+          $(window).on('beforeunload', function() { return 'Are you sure you want to leave this page?'; });
+        }
         // check if the file is already queued
         if(typeof(duplicateCache[file.name]) !== "undefined") {
           dropzone.removeFile(file);
