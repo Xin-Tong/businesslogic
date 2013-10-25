@@ -152,9 +152,6 @@ class PhotoController extends BaseController
     {
       if(!isset($getParams['sortBy']))
         $additionalParams['sortBy'] = 'dateTaken,asc';
-
-      if($isAlbum)
-        $additionalParams['pageSize'] = '0';
     }
 
     $params = array('_GET' => array_merge($additionalParams, $getParams));
