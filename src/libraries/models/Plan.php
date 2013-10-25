@@ -15,7 +15,7 @@ class Plan extends BaseModel
   {
     parent::__construct();
     $this->user = new User;
-    $this->id = $this->user->getAttribute('planId');
+    $this->id = $this->user->getAttribute('plan');
     if(empty($this->id))
       $this->id = self::planFree;
   }
