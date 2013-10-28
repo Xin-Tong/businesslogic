@@ -1554,7 +1554,7 @@ class DatabaseMySql implements DatabaseInterface
     */
   public function putAdministrator($email, $host)
   {
-    $result = $this->db->execute("REPLACE INTO `{$this->mySqlTablePrefix}administrator` (`email`,`host`,`dateCreated`,`active`) VALUES (:email,:host,:dateCreated,1)", array(':email' => $email, ':host' => $host, ':dateCreated' => time()));
+    $result = $this->db->execute("REPLACE INTO `{$this->mySqlTablePrefix}administrator` (`owner`,`host`,`email`,`dateCreated`,`active`) VALUES (:owner,:host,:email,:dateCreated,1)", array(':owner' => $this->owner, ':host' => $host, ':email' => $email, ':dateCreated' => time()));
     return ($result !== false);
   }
 
