@@ -67,6 +67,8 @@ class Group extends BaseModel
 
   public function manageMembers($id, $emails, $action)
   {
+    $utilityObj = new Utility;
+    $host = $utilityObj->getHost(true);
     foreach($emails as $k => $v) 
     {
       if(stristr($v, '@') === false)
@@ -80,7 +82,7 @@ class Group extends BaseModel
     switch($action)
     {
       case 'add':
-        $res = $this->db->putGroupMembers($id, $emails);
+        $res = $this->db->putGroupMembers($id, $host, $emails);
         if($res)
           $this->notifyMembers($id, $emails);
         break;

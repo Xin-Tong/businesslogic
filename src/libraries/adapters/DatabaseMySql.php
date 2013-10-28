@@ -88,6 +88,19 @@ class DatabaseMySql implements DatabaseInterface
   }
 
   /**
+    * Delete an administrator from the database
+    *
+    * @param string $email email of user
+    * @param string $host host to add to
+    * @return boolean
+    */
+  public function deleteAdministrator($email, $host)
+  {
+    $res = $this->db->execute("DELETE FROM `{$this->mySqlTablePrefix}administrator` WHERE `email`=:email AND `host`=:host", array(':email' => $email, ':host' => $host));
+    return ($res !== false);
+  }
+
+  /**
     * Delete an album from the database
     *
     * @param string $id ID of the action to delete
@@ -1533,6 +1546,19 @@ class DatabaseMySql implements DatabaseInterface
   }
 
   /**
+    * Add a new administrator to the database
+    *
+    * @param string $email email of user
+    * @param string $host host to add to
+    * @return boolean
+    */
+  public function putAdministrator($email, $host)
+  {
+    $result = $this->db->execute("REPLACE INTO `{$this->mySqlTablePrefix}administrator` (`email`,`host`,`dateCreated`,`active`) VALUES (:email,:host,:dateCreated,1)", array(':email' => $email, ':host' => $host, ':dateCreated' => time()));
+    return ($result !== false);
+  }
+
+  /**
     * Add a new album to the database
     * This method does not overwrite existing values present in $params - hence "new action".
     *
@@ -1587,17 +1613,18 @@ class DatabaseMySql implements DatabaseInterface
     * Add members to a group
     *
     * @param string $id Group id
+    * @param string $host Host
     * @param array $members Members to be added
     * @return boolean
     */
-  public function putGroupMembers($id, $emails)
+  public function putGroupMembers($id, $host, $emails)
   {
     if(empty($id) || empty($emails))
       return false;
 
-    $sql = "REPLACE INTO `{$this->mySqlTablePrefix}groupMember`(`owner`, `actor`, `group`, `email`) VALUES ";
+    $sql = "REPLACE INTO `{$this->mySqlTablePrefix}groupMember`(`owner`, `actor`, `group`, `email`, `host`) VALUES ";
     foreach($emails as $email)
-      $sql .= sprintf("('%s', '%s', '%s', '%s'),", $this->_($this->owner), $this->_($this->getActor()), $this->_($id), $this->_($email));
+      $sql .= sprintf("('%s', '%s', '%s', '%s', '%s'),", $this->_($this->owner), $this->_($this->getActor()), $this->_($id), $this->_($email), $this->_($host));
 
     $sql = substr($sql, 0, -1);
     $res = $this->db->execute($sql);

@@ -11,9 +11,11 @@ class ApiManageController extends ApiBaseController
   {
     getAuthentication()->requireAuthentication();
     getAuthentication()->requireCrumb();
+    $host = $this->utility->getHost(true);
     $configFile = $this->utility->getConfigFile(true);
     $configString = getConfig()->getString($configFile);
     $configArray = parse_ini_string($configString, true);
+    $originalAdmins = getConfig()->get('user')->admins;
 
     // set defaults since checkbox values are not passed if unchecked
     // skip defaults is for the admins form which doesn't pass any of these
@@ -21,16 +23,6 @@ class ApiManageController extends ApiBaseController
       $post = array_merge(array('enableBetaFeatures' => 0, 'allowDuplicate' => 0, 'downloadOriginal' => 0, 'hideFromSearchEngines' => 0, 'decreaseLocationPrecision' => 0), $_POST);
     else
       $post = $_POST;
-
-    // new admins?
-    if(isset($post['admins']))
-    {
-      $accountObj = new Account;
-      $adminDiff = $this->adminDiff($post['admins']);
-      // if new users we add/notifiy
-      if(!empty($adminDiff['add']))
-        $this->notifyAdministrators($adminDiff['add']);
-    }
 
     foreach($post as $key => $value)
     {
@@ -92,15 +84,38 @@ class ApiManageController extends ApiBaseController
       }
     }
     $res = getConfig()->write($configFile, $this->utility->generateIniString($configArray, true));
+
     if($res)
+    {
+      // if admins change then we send emails and update the administrator table
+      if(isset($post['admins']))
+      {
+        $administratorObj = new Administrator;
+        $accountObj = new Account;
+        $adminDiff = $this->adminDiff($post['admins'], $originalAdmins);
+        // if new users we add/notifiy
+        if(!empty($adminDiff['add']))
+        {
+          foreach($adminDiff['add'] as $em)
+            $administratorObj->add($em, $host);
+          $this->notifyAdministrators($adminDiff['add']);
+        }
+        else
+        {
+          foreach($adminDiff['remove'] as $em)
+            $administratorObj->delete($em, $host);
+        }
+      }
+
       return $this->success('Features successfully updated', true);
-    else
-      return $this->error('Could not update features', false);
+    }
+
+    return $this->error('Could not update features', false);
   }
 
-  private function adminDiff($new)
+  private function adminDiff($new, $old)
   {
-    $existing = (array)explode(',', getConfig()->get('user')->admins);
+    $existing = (array)explode(',', $old);
     sort($existing);
 
     if(!is_array($new))

@@ -75,7 +75,7 @@ interface DatabaseInterface
   public function postWebhook($id, $params);
   // put methods create but do not update
   public function putGroup($id, $params);
-  public function putGroupMembers($id, $emails);
+  public function putGroupMembers($id, $host, $emails);
   public function putAction($id, $params);
   public function putActivity($id, $elementId, $params);
   public function putAlbum($id, $params);
