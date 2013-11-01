@@ -433,8 +433,21 @@ class ApiPhotoController extends ApiBaseController
     if(isset($attributes['albums']) && !empty($attributes['albums']))
       $albums = (array)explode(',', $attributes['albums']);
 
-    getAuthentication()->requireAuthentication(array(Permission::create), $albums);
-    getAuthentication()->requireCrumb();
+    $token = null;
+    if(isset($attributes['token']) && !empty($attributes['token']))
+    {
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($attributes['token']);
+      if(empty($tokenArr) || $tokenArr['type'] != 'album')
+        return $this->forbidden('No permissions with the passed in token', false);
+      $attributes['albums'] = $tokenArr['data'];
+      $token = $tokenArr['id'];
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array(Permission::create), $albums);
+      getAuthentication()->requireCrumb();
+    }
 
     $this->plugin->invoke('onPhotoUpload');
 
@@ -475,6 +488,10 @@ class ApiPhotoController extends ApiBaseController
     $attributes['hash'] = sha1_file($localFile);
     if($allowDuplicate == '0')
     {
+      // TODO refactor this to work with token based uploading.
+      // Basically we want to add the album and token to this request if they are passed in
+      // This ensures that we don't leak private photos
+      // A known (by design) issue is that duplicates can be uploaded but not into a specific album
       $hashResp = $this->api->invoke("/{$this->apiVersion}/photos/list.json", EpiRoute::httpGet, array('_GET' => array('hash' => $attributes['hash'], 'returnSizes' => implode(',', $sizes))));
       // the second condition is for backwards compatability between v2 and v1. See #1086
       if(!empty($hashResp['result']) && $hashResp['result'][0]['totalRows'] > 0)
@@ -489,7 +506,7 @@ class ApiPhotoController extends ApiBaseController
     if($photoId)
     {
       if(isset($attributes['albums']))
-        $this->updateAlbums($attributes['albums'], $photoId);
+        $this->updateAlbums($attributes['albums'], $photoId, array(), $token);
 
       foreach($sizes as $size)
       {
@@ -498,13 +515,15 @@ class ApiPhotoController extends ApiBaseController
         $this->photo->generate($photoId, $hash, $options['width'], $options['height'], $options['options']);
       }
 
-      $apiResp = $this->api->invoke("/{$this->apiVersion}/photo/{$photoId}/view.json", EpiRoute::httpGet, array('_GET' => array('returnSizes' => implode(',', $sizes))));
+      $apiUrl = $token ? sprintf('/photo/%s/token-%s/view.json', $photoId, $token) : sprintf('/photo/%s/view.json', $photoId);
+      $apiResp = $this->api->invoke($apiUrl, EpiRoute::httpGet, array('_GET' => array('returnSizes' => implode(',', $sizes))));
+
       $photo = $apiResp['result'];
       $permission = isset($attributes['permission']) ? $attributes['permission'] : 0;
 
       if($photo)
       {
-        $webhookApi = $this->api->invoke("/{$this->apiVersion}/webhooks/photo.upload/list.json", EpiRoute::httpGet);
+        $webhookApi = $this->api->invoke("/{$this->apiVersion}/webhooks/photo.upload/list.json", EpiRoute::httpGet, array('_GET' => array('token' => $token)));
         if(!empty($webhookApi['result']) && is_array($webhookApi['result']))
         {
           $photoAsArgs = $photo;
@@ -519,7 +538,7 @@ class ApiPhotoController extends ApiBaseController
         $this->api->invoke(
           "/{$this->apiVersion}/activity/create.json", 
           EpiRoute::httpPost, 
-          array('_POST' => array('elementId' => $photoId, 'type' => 'photo-upload', 'data' => $photo, 'permission' => $permission))
+          array('_POST' => array('elementId' => $photoId, 'type' => 'photo-upload', 'data' => $photo, 'permission' => $permission, 'token' => $token))
         );
       }
 
@@ -838,7 +857,7 @@ class ApiPhotoController extends ApiBaseController
   }
 
   // To do multiple photoIds we have to have corresponding photoBefores and map them accordingly
-  private function updateAlbums($albumIds, $photoId, $photoBefore = array())
+  private function updateAlbums($albumIds, $photoId, $photoBefore = array(), $token = null)
   {
     $albumsArr = $albumIds;
     if(!is_array($albumIds))
@@ -861,7 +880,7 @@ class ApiPhotoController extends ApiBaseController
       foreach($albumsToAdd as $aId)
       {
         if(!empty($aId))
-          $this->api->invoke("/album/{$aId}/photo/add.json", EpiRoute::httpPost, array('_POST' => array('ids' => $photoId)));
+          $this->api->invoke("/album/{$aId}/photo/add.json", EpiRoute::httpPost, array('_POST' => array('ids' => $photoId, 'token' => $token)));
       }
     }
   }

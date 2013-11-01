@@ -95,12 +95,7 @@ class Activity extends BaseModel
     foreach($attributes as $key => $val)
     {
       if(isset($matches[$key]))
-      {
         $returnAttrs[$key] = $val;
-        continue;
-      }
-
-      $returnAttrs[$key] = $val;
     }
 
     return $returnAttrs;

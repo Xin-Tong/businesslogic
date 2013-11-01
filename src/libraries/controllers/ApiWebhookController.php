@@ -90,7 +90,17 @@ class ApiWebhookController extends ApiBaseController
     */
   public function list_($topic = null)
   {
-    getAuthentication()->requireAuthentication(array(Permission::create));
+    if(isset($_GET['token']) && !empty($_GET['token']))
+    {
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($_GET['token']);
+      if(empty($tokenArr) || $tokenArr['type'] != 'album')
+        return $this->forbidden('No permissions with the passed in token', false);
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array(Permission::create));
+    }
     $webhooks = $this->webhook->getAll($topic);
     if($webhooks)
       return $this->success("Successfully retrieved webhooks", $webhooks);

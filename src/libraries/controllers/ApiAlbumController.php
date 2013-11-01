@@ -167,8 +167,21 @@ class ApiAlbumController extends ApiBaseController
 
   public function updateIndex($albumId, $type, $action)
   {
-    getAuthentication()->requireAuthentication(array(Permission::create), array($albumId));
-    getAuthentication()->requireCrumb();
+    // check if a token is passed in
+    // if a token is passed we check the type and the data to make sure the permissions are correct
+    // else use default authentication
+    if(isset($_POST['token']) && !empty($_POST['token']))
+    {
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($_POST['token']);
+      if(empty($tokenArr) || $tokenArr['type'] != 'album' || $albumId !== $tokenArr['data'])
+        return $this->forbidden('No permission to add photo to album with the passed in token', false);
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array(Permission::create), array($albumId));
+      getAuthentication()->requireCrumb();
+    }
     $this->logger->info(sprintf('Calling ApiAlbumController::updateIndex with %s, %s, %s', $albumId, $type, $action));
 
     if(!isset($_POST['ids']) || empty($_POST['ids']))
@@ -185,6 +198,7 @@ class ApiAlbumController extends ApiBaseController
           {
             $ids = (array)explode(',', $_POST['ids']);
             $id = array_pop($ids);
+            // TODO do we need to pass the token in here?
             $this->api->invoke("/album/{$albumId}/cover/{$id}/update.json", EpiRoute::httpPost);
           }
         }
