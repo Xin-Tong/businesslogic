@@ -21,13 +21,38 @@ class OPException extends Exception
         }
         die();
         break;
+      case 'EpiDatabaseException':
+      case 'EpiDatabaseConnectionException':
+      case 'EpiDatabaseQueryException':
+        if(isset($_GET['__route__']) && substr($_GET['__route__'], -5) == '.json')
+        {
+          echo json_encode($baseController->error('A database exception occured.'));
+        }
+        else
+        {
+          getRoute()->run('/error/500', EpiRoute::httpGet);
+        }
+        die();
+        break;
       case 'OPAuthorizationOAuthException':
         echo json_encode($baseController->forbidden($exception->getMessage()));
         die();
         break;
       default:
         getLogger()->warn(sprintf('Uncaught exception (%s:%s): %s', $exception->getFile(), $exception->getLine(), $exception->getMessage()));
-        throw $exception;
+        $message = 'An unknown error occurred.';
+        if($exception->getMessage() != '')
+          $message = $exception->getMessage();
+
+        // != '' && != 0
+        $result = null;
+        if($exception->getCode() != '')
+          $result['code'] = $exception->getCode();
+
+        if(isset($_GET['__route__']) && substr($_GET['__route__'], -5) == '.json')
+          echo json_encode($baseController->error($exception->getMessage(), $result));
+        else
+          getRoute()->run('/error/500', EpiRoute::httpGet);
         break;
     }
   }
@@ -45,21 +70,7 @@ function op_exception_handler($exception)
   $baseController = new BaseController;
   if(!$handled)
   {
-    getLogger()->warn(sprintf('Uncaught exception (%s:%s): %s', $exception->getFile(), $exception->getLine(), $exception->getMessage()));
-    $message = 'An unknown error occurred.';
-    if($exception->getMessage() != '')
-      $message = $exception->getMessage();
-
-    // != '' && != 0
-    $result = null;
-    if($exception->getCode() != '')
-      $result['code'] = $exception->getCode();
-
-    if(isset($_GET['__route__']) && substr($_GET['__route__'], -5) == '.json')
-      echo json_encode($baseController->error($exception->getMessage(), $result));
-    else
-      getRoute()->run('/error/500', EpiRoute::httpGet);
-
+    OPException::raise($exception);
     $handled = 1;
   }
 }
