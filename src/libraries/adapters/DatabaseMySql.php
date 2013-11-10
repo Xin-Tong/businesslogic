@@ -2642,7 +2642,7 @@ class DatabaseMySql implements DatabaseInterface
       if(!empty($stmt['vals']))
         $stmt['vals'] .= ",";
       $stmt['cols'] .= "`{$key}`";
-      if(!empty($bindings) && array_key_exists($value, $bindings))
+      if(!empty($bindings) && !empty($value) && array_key_exists($value, $bindings))
       {
         if(is_null($value))
           $stmt['vals'] .= 'NULL';
@@ -2676,7 +2676,7 @@ class DatabaseMySql implements DatabaseInterface
       if(!empty($stmt)) {
         $stmt .= ",";
       }
-      if(!empty($bindings) && array_key_exists($value, $bindings))
+      if(!empty($bindings) && !empty($value) && array_key_exists($value, $bindings))
         $stmt .= "`{$key}`={$value}";
       else
         $stmt .= sprintf("`%s`='%s'", $key, $this->_($value));
