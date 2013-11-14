@@ -351,13 +351,16 @@
           end: false,
           running: false,
           init: function() {
-            var options, _pages = TBX.init.pages, _this = _pages.photos, batchModel = _pages.photos.batchModel, $batchEl = $('.batch-meta');
+            var _pages = TBX.init.pages, _this = _pages.photos, batchModel = _pages.photos.batchModel, $batchEl = $('.batch-meta');
 
             $(window).scroll(function() { util.scrollCb(_this); });
             _this.load();
             (new op.data.view.BatchIndicator({model:batchModel, el: $batchEl})).render();
 
-            options = {
+            TBX.init.pages.photos.initRoutes();
+          },
+          initRoutes: function() {
+            var options = {
               routes: {
                 "p/:id": "photoModal",
                 "p/:id/*path": "photoModal",
@@ -367,6 +370,7 @@
               },
             };
             op.data.store.Router = new op.data.route.Routes(options);
+
             // Start Backbone history a necessary step for bookmarkable URL's
             Backbone.history.start({pushState: Modernizr.history, silent: true});
             Backbone.history.loadUrl(Backbone.history.getFragment());

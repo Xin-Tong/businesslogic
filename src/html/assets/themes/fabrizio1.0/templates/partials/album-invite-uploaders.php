@@ -14,7 +14,7 @@
       <?php if($token['dateExpires'] == 0) { ?>
         This URL never expires.
       <?php } else { ?>
-        This URL expires <?php echo $this->utility->dateLong($token['dateExpires']); ?>
+        This URL expires in <?php echo intval(($token['dateExpires']-time())/86400); ?> days. <small>(<?php echo $this->utility->dateLong($token['dateExpires']); ?>)</small>
       <?php } ?>
     </p>
   </div>

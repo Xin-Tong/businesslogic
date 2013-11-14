@@ -298,6 +298,7 @@
           (new op.data.view.BatchIndicator({model:batchModel, el: $batchEl})).render();
           op.data.store.Photos.add(success);
           container = $('.upload-preview.success');
+          TBX.init.pages.photos.initRoutes();
           Gallery.showImages(container, success);
         }
       });

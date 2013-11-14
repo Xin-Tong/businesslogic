@@ -1,7 +1,8 @@
-<h2>Enter your name or nickname</h2>
+<h2>Knock, knock</h2>
 <form class="form-stacked uploadTokenDialog">
-  <label>Including your name or nickname helps with organization</label>
+  <label>Name or nickname</label>
   <input type="text" name="identifier" placeholder="your name or nickname">
+  <small>This helps the account owner know these are your photos</small>
   <div class="btn-toolbar">
     <button class="btn btn-brand">Continue</button>
   </div>
