@@ -27,6 +27,16 @@
       }
       $('.batchHide').trigger('click');
     };
+    this.albumInviteUploaders = function(response) {
+      var result = response.result, $flyout = $('.secondary-flyout');
+      if(response.code !== 200) {
+        TBX.notification.show('There was a problem generating an upload link for this album.', 'flash', 'error');
+        return;
+      }
+
+      $flyout.html(result.markup).slideDown();
+      TBX.clipboard.copy($('.copyToClipboard', $flyout));
+    };
     this.batch = function(response) { // this is the form params
       var id, model, ids = this.ids.split(','), photoCount = ids.length, store = op.data.store.Photos, action = response.code === 204 ? 'deleted' : 'updated';
       if(response.code === 200 || response.code === 204) {
@@ -270,8 +280,11 @@
       }
     };
     this.uploadCompleteSuccess = function(photoResponse) {
+      var $form = $("form.upload");
       photoResponse.crumb = TBX.crumb();
-      $("form.upload").fadeOut('fast', function() {
+      photoResponse.token = $('input[name="token"]', $form).val();
+      photoResponse.albums = $("select[name='albums']", $form).val(),
+      $form.fadeOut('fast', function() {
         OP.Util.makeRequest('/photos/upload/confirm.json', photoResponse, TBX.callbacks.uploadConfirm, 'json', 'post');
       });
     };
@@ -293,6 +306,10 @@
       var form = $('form.upload');
       if(typeof OPU === 'object')
         OPU.init();
+    };
+    this.uploadTokenDialog = function(response) {
+      var tpl = response.result.tpl;
+      TBX.modal.open(tpl);
     };
   }
   

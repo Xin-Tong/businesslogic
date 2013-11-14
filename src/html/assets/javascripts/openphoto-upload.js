@@ -26,7 +26,7 @@ OPU = (function() {
         uploaderEl.pluploadQueue({
             // General settings
             runtimes : 'html5',
-            url : '/media/upload.json', // omit 409 since it's somewhat idempotent
+            url : '/photo/upload.json', // omit 409 since it's somewhat idempotent
             max_file_size : '32mb',
             file_data_name : 'photo',
             //chunk_size : '1mb',
@@ -104,6 +104,7 @@ OPU = (function() {
                     albums = $("select[name='albums']", form).val(),
                     tags = $("input[name='tags']", form).val(),
                     crumb = $("input[name='crumb']", form).val(),
+                    token = $("input[name='token']", form).val(),
                     // http://stackoverflow.com/a/6116631
                     // groups = $("input[name='groups[]']:checked", form).map(function () {return this.value;}).get().join(",");
                     groups = $("select[name='groups']", form).val();
@@ -122,6 +123,7 @@ OPU = (function() {
                 uploader.settings.multipart_params.albums = albums;
                 uploader.settings.multipart_params.groups = groups;
                 uploader.settings.multipart_params.crumb = crumb;
+                uploader.settings.multipart_params.token = token;
               }
             }
         });

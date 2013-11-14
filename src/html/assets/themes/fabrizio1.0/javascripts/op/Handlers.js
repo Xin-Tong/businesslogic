@@ -13,6 +13,11 @@
       $el.find('i').remove();
       $('<i class="icon-spinner icon-spin"></i>').prependTo($el);
     };
+    this.click.albumInviteUploaders = function(ev) {
+      ev.preventDefault();
+      var $el = $(ev.target), id = $el.attr('data-id');
+      OP.Util.makeRequest('/album/invite/uploaders.json', {id: id, crumb: TBX.crumb()}, TBX.callbacks.albumInviteUploaders, 'json', 'get');
+    };
     this.click.batchAlbumMode = function(ev) {
       var $el = $(ev.target), $form = $el.closest('form'), $albums = $('select.albums', $form);
       if($el.val() === 'add')
@@ -465,6 +470,12 @@
       } else {
         TBX.notification.show('The upload widget could not be loaded. Try refreshing this page.', 'flash', 'error');
       }
+    };
+    this.submit.uploadTokenDialog = function(ev) {
+      ev.preventDefault();
+      var $form = $(ev.target), $tagField = $('form.upload input[name="tags"]'), ident = $('input[name="identifier"]', $form).val();
+      $tagField.val(TBX.format.sprintf('uploadedBy:%s', ident));
+      TBX.modal.close();
     };
     
     // change

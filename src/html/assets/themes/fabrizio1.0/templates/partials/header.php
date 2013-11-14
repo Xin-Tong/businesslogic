@@ -37,7 +37,7 @@
             <li class="<?php if($this->utility->isActiveTab('albums')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->albumsView(); ?>"><i class="icon-th-large"></i> Albums</a></li>
             <li class="<?php if($this->utility->isActiveTab('tags')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->tagsView(); ?>"><i class="icon-tags"></i> Tags</a></li>
             <?php if($this->permission->canUpload()) { ?>
-              <li class="hidden-phone hidden-tablet <?php if($this->utility->isActiveTab('upload')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->photosUpload(); ?>"><i class="icon-upload"></i> Upload</a></li>
+              <li class="<?php if($this->utility->isActiveTab('upload')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->photosUpload(); ?>"><i class="icon-upload"></i> Upload</a></li>
             <?php } ?>
           </ul>
           <div class="search-wrap separator-left">
@@ -52,8 +52,7 @@
     <div class="navbar-inner navbar-inner-secondary">
       <div class="container">
         <ul class="nav">
-          <li><a href="/"><i class="icon-home"></i></a></li>
-          <li class="separator-left"><span class="profile-name-meta owner"></span></li>
+          <li><span class="profile-name-meta owner"></span></li>
           <?php $this->theme->display('partials/header-secondary.php', array()); ?>
         </ul>
         <ul class="nav pull-right">

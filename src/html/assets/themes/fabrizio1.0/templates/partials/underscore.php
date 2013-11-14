@@ -17,10 +17,12 @@
   </div>
 </script>
 <script type="tmpl/underscore" id="profile-photo-meta">
-  <% if(photoUrl.search('gravatar.com') == -1) { %>
+  <% if(photoUrl && photoUrl.search('gravatar.com') == -1) { %>
     <img class="avatar profile-pic profile-photo" src="<%= photoUrl %>" <% if(photoUrl.search('gravatar.com') == -1) { %> <% } %> />
-  <% } else { %>
+  <% } else if(photoUrl) { %>
     <i class="to icon-user" title="<?php if($isAdmin) { ?>Click the profile icon when mousing over any photo to set it as your profile photo.<?php } else { ?>Trovebox User<?php } ?>"></i>
+  <% } else { %>
+    <i class="to icon-user"></i>
   <% } %>
 </script>
 
@@ -495,3 +497,9 @@
   </div>
   <a href="#" class="batchHide close" title="Close this dialog"><i class="icon-remove batchHide"></i></a>
 </script>
+<div id="modal" class="modal hide fade">
+<div class="modal-body">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+<p class="body-text"></p>
+</div>
+</div>

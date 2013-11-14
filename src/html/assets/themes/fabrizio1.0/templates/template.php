@@ -69,7 +69,10 @@
             class="flow-player-script">
     </script>
 
-    <script type="text/javascript">
+    <script>
+      OP.Util.config.ZeroClipboardSWF = '<?php $this->utility->safe($this->config->site->cdnPrefix);?><?php echo getAssetPipeline(true)->setMode(AssetPipeline::combined)->
+      addJs($this->theme->asset('javascript', 'ZeroClipboard.swf', false))->
+      getUrl(AssetPipeline::js, $this->config->site->mediaVersion, $this->config->site->mode === 'prod'); ?>';
       OP.Util.init(jQuery, {
         js: {
           assets: [
@@ -83,7 +86,6 @@
                 addJs('/assets/javascripts/plupload.html5.js', false)->
                 addJs('/assets/javascripts/jquery.plupload.queue.js', false)->
                 addJs('/assets/javascripts/openphoto-upload.js')->
-                addJs($this->theme->asset('javascript', 'dropzone.js', false))->
                 getUrl(AssetPipeline::js, $this->config->site->mediaVersion, $this->config->site->mode === 'prod'); ?>',
             <?php } ?>
               '<?php $this->utility->safe($this->config->site->cdnPrefix);?><?php echo getAssetPipeline(true)->setMode(AssetPipeline::combined)->
@@ -94,6 +96,7 @@
                 addJs($this->theme->asset('javascript', 'jquery.color.js', false))->
                 addJs($this->theme->asset('javascript', 'x-editable/bootstrap-editable/js/bootstrap-editable.js', false))->
                 addJs($this->theme->asset('javascript', 'phpjs.js', false))->
+                addJs($this->theme->asset('javascript', 'ZeroClipboard.min.js', false))->
                 addJs($this->theme->asset('javascript', 'overrides.js', false))->
                 addJs($this->theme->asset('javascript', 'op/namespace.js', false))->
                 addJs($this->theme->asset('javascript', 'op/data/route/Routes.js', false))->
@@ -137,7 +140,9 @@
                 addJs($this->theme->asset('javascript', 'op/Tutorial.js', false))->
                 addJs($this->theme->asset('javascript', 'op/Upload.js', false))->
                 addJs($this->theme->asset('javascript', 'op/Players.js', false))->
+                addJs($this->theme->asset('javascript', 'op/Modal.js', false))->
                 addJs($this->theme->asset('javascript', 'op/Format.js', false))->
+                addJs($this->theme->asset('javascript', 'op/Clipboard.js', false))->
                 addJs($this->theme->asset('javascript', 'gallery.js', false))->
                 addJs($this->theme->asset('javascript', 'intro.js', false))->
                 addJs($this->theme->asset('javascript', 'fabrizio.js', false))->
@@ -151,6 +156,7 @@
               <?php } ?>
               TBX.util.enableBetaFeatures(<?php echo json_encode((bool)$this->config->site->enableBetaFeatures); ?>);
               TBX.init.load('<?php $this->utility->safe($this->session->get('crumb')); ?>'); 
+              TBX.isAuthenticated(<?php echo json_encode(($this->session->get('email') != '')); ?>);
               <?php $this->plugin->invoke('renderFooterJavascript'); ?>
               TBX.init.run(); 
               TBX.init.attachEvents();

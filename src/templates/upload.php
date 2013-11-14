@@ -26,26 +26,30 @@
         <div class="control-group">
           <label class="control-label">Albums <small>(<a href="#" class="showBatchForm album" data-action="albums">create new</a>)</small></label>
           <select data-placeholder="Select albums for these photos" name="albums" class="typeahead">
-            <?php if($this->user->isAdmin()) { ?><option value="">If you'd like, choose an album</option><?php } ?>
+            <?php if($allowSkipAlbum) { ?><option value="">If you'd like, choose an album</option><?php } ?>
             <?php foreach($albums as $album) { ?>
               <option value="<?php $this->utility->safe($album['id']); ?>"><?php $this->utility->safe($album['name']); ?></option>
             <?php } ?>
           </select>
         </div>
 
-        <div class="control-group">
-          <label for="tags">Permission</label>
-          <div class="controls">
-            <label class="radio inline private">
-              <input type="radio" name="permission" value="0"<?php if($preferences['permission'] === false || $preferences['permission'] === '0') { ?> checked="checked"<?php } ?>>
-              <span>Private</span>
-            </label>
-            <label class="radio inline">
-              <input type="radio" name="permission" value="1"<?php if($preferences['permission'] === '1') { ?> checked="checked"<?php } ?>>
-              <span>Public</span>
-            </label>
+        <?php if(empty($token)) { ?>
+          <div class="control-group">
+            <label for="tags">Permission</label>
+            <div class="controls">
+              <label class="radio inline private">
+                <input type="radio" name="permission" value="0"<?php if($preferences['permission'] === false || $preferences['permission'] === '0') { ?> checked="checked"<?php } ?>>
+                <span>Private</span>
+              </label>
+              <label class="radio inline">
+                <input type="radio" name="permission" value="1"<?php if($preferences['permission'] === '1') { ?> checked="checked"<?php } ?>>
+                <span>Public</span>
+              </label>
+            </div>
           </div>
-        </div>
+        <?php } else { ?>
+          <input type="hidden" name="permission" value="0">
+        <?php } ?>
 
         <label for="license">License</label>
         <select name="license" class="license">
@@ -55,6 +59,7 @@
         </select>
 
         <input type="hidden" name="crumb" value="<?php $this->utility->safe($crumb); ?>">
+        <input type="hidden" name="token" value="<?php $this->utility->safe($token); ?>">
         
         <div class="btn-toolbar">
           <button type="submit" class="btn btn-brand upload-button addSpinner">Start uploading</button>

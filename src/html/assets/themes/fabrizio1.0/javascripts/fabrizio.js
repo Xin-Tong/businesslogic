@@ -1,7 +1,7 @@
 (function($) {
 
   function Fabrizio() {
-    var crumb, markup, profiles, pushstate, tags, pathname, util;
+    var authed = false, crumb, markup, profiles, pushstate, tags, pathname, util;
 
     crumb = (function() {
       var value = null;
@@ -156,6 +156,13 @@
       };
     })(); // util
 
+    this.isAuthenticated = function() {
+      if(arguments.length === 0)
+        return authed || false;
+
+      authed = arguments[0];
+      return authed;
+    };
     this.crumb = function() { return crumb.get(); };
     this.init = {
       load: function(_crumb) {
@@ -195,7 +202,7 @@
           TBX.init.pages.photos.init();
         } else if(location.pathname.search(/^\/p\/[a-z0-9]+/) === 0 || location.pathname.search(/^\/photo\/[a-z0-9]+\/?(.*)\/view/) === 0) {
           TBX.init.pages.photo.init();
-        } else if(location.pathname === '/photos/upload') {
+        } else if(location.pathname === '/photos/upload' || location.pathname.search(/^\/photos\/upload\/[a-z0-9]{10}/) === 0) {
           TBX.init.pages.upload();
         } else if(location.pathname === '/photos/upload/beta') {
           TBX.init.pages.uploadBeta();
@@ -379,17 +386,20 @@
           }
         },
         upload: function() {
+          if(location.pathname.search(/^\/photos\/upload\/[a-z0-9]{10}/) === 0) {
+            if($('form.upload').length === 1)
+              OP.Util.makeRequest('/photos/upload/token/dialog.json', {}, TBX.callbacks.uploadTokenDialog, 'json', 'get');
+          }
           OP.Util.on('upload:complete-success', TBX.callbacks.uploadCompleteSuccess);
           OP.Util.on('upload:complete-failure', TBX.callbacks.uploadCompleteFailure);
           OP.Util.on('upload:uploader-ready', TBX.callbacks.uploaderReady);
+          OP.Util.on('upload:token-dialog', TBX.callbacks.uploadTokenDialot);
           OP.Util.on('submit:photo-upload', TBX.callbacks.upload);
           OP.Util.fire('upload:uploader-ready');
         },
         uploadBeta: function() {
           window.Dropzone.autoDiscover = false;
           OP.Util.on('upload:uploader-beta-ready', TBX.handlers.custom.uploaderBetaReady);
-//        OP.Util.on('click:upload-dialog', TBX.handlers.uploadDialogBeta);
-//        OP.Util.on('click:photo-upload', TBX.handlers.click.uploadBeta);
           OP.Util.fire('upload:uploader-beta-ready');
         }
       }
@@ -443,5 +453,6 @@
   TBX.notification = _TBX.notification;
   TBX.init = _TBX.init;
   TBX.crumb = _TBX.crumb;
+  TBX.isAuthenticated = _TBX.isAuthenticated;
   TBX.log = OP.Log; // for consistency
 })(jQuery);
