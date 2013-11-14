@@ -108,7 +108,7 @@ class ApiAlbumController extends ApiBaseController
 
     $album = $albumResp['result'];
 
-    $sharingTokenResp = $this->api->invoke(sprintf('/token/upload/%s/create.json', $albumId), EpiRoute::httpPost);
+    $sharingTokenResp = $this->api->invoke(sprintf('/token/upload/%s/create.json', $albumId), EpiRoute::httpPost, array('_POST' => array('dateExpires' => strtotime('+2 weeks'))));
 
     $token = null;
     if($sharingTokenResp['code'] === 200 || $sharingTokenResp['code'] === 201)

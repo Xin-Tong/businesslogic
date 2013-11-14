@@ -14,7 +14,7 @@ class ApiTokenController extends ApiController
     // if trying to create an album token then we check if the user has permission
     // if trying to create a photo token then we check against the API for permissions
     // TODO #1403 clean up the else case
-    if($type == 'album')
+    if($type == 'album' || $type == 'upload')
     {
       getAuthentication()->requireAuthentication(array('C'), $data);
     }
