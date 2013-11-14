@@ -223,21 +223,58 @@ class PhotoController extends BaseController
     *
     * @return string HTML
     */
-  public function upload()
+  public function upload($token = null)
   {
-    getAuthentication()->requireAuthentication(array(Permission::create));
-    $userObj = new User;
-    /*if(!$userObj->isAdmin())
+    // we set albumId to null
+    // we only use albumId to limit the album selection if a token or GET parameter album is present
+    $albumId = null;
+    if(!empty($token))
     {
-      $this->route->run('/error/403');
-      return;
-    }*/
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($token);
+      $albumId = $tokenArr['data'];
+      if(empty($tokenArr) || $tokenArr['type'] != 'upload')
+      {
+        $this->route->run('/error/403');
+        return;
+      }
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array(Permission::create));
+    }
+
+    $userObj = new User;
     $this->theme->setTheme(); // defaults
     $crumb = $this->session->get('crumb');
     $template = sprintf('%s/upload.php', $this->config->paths->templates);
-    $albumsResp = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('pageSize' => '0', 'permission' => Permission::create)));
+
+    $allowSkipAlbum = $userObj->isAdmin();
+
+    if(isset($_GET['album']) && !empty($_GET['album']))
+    {
+      $albumId = $_GET['album'];
+    }
+    else
+    {
+      $albumsResp = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('pageSize' => '0', 'permission' => Permission::create)));
+      $albums = $albumsResp['result'];
+    }
+    
+    if($albumId)
+    {
+      $albumResp = $this->api->invoke(sprintf('/album/%s/view.json', $albumId), EpiRoute::httpGet, array('_GET' => array('token' => $token)));
+      if($albumResp['code'] !== 200)
+      {
+        $this->route->run('/error/403');
+        return;
+      }
+      $allowSkipAlbum = false;
+      $albums = array($albumResp['result']);
+    }
+
     $preferences = array('permission' => $userObj->getAttribute('stickyPermission'));
-    $body = $this->template->get($template, array('crumb' => $crumb, 'albums' => $albumsResp['result'], 'licenses' => $this->utility->getLicenses($userObj->getAttribute('stickyLicense')), 'preferences' => $preferences));
+    $body = $this->template->get($template, array('crumb' => $crumb, 'albums' => $albums, 'licenses' => $this->utility->getLicenses($userObj->getAttribute('stickyLicense')), 'preferences' => $preferences, 'allowSkipAlbum' => $allowSkipAlbum, 'token' => $token));
     $this->theme->display('template.php', array('body' => $body, 'page' => 'upload'));
   }
 

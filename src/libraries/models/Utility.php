@@ -86,6 +86,17 @@ class Utility
     return $this->returnValue(sprintf('%s://%s%s', $this->getProtocol(false), $this->getHost(false), $path), $write);
   }
 
+  public function getAttributeFromPath($name, $path = null)
+  {
+    if($path === null)
+      $path = $_GET['__route__'];
+
+    if(!preg_match(sprintf('#/%s-([^/])#', $name), $path, $matches))
+      return null;
+
+    return $matches[1];
+  }
+
   public function getBaseDir()
   {
     return dirname(dirname(dirname(__FILE__)));

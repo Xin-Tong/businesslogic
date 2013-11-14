@@ -29,7 +29,7 @@ interface DatabaseInterface
   public function getAction($id);
   public function getActivities($filters = array(), $limit = null);
   public function getActivity($id);
-  public function getAlbum($id, $email);
+  public function getAlbum($id, $email, $validatedToken = false);
   public function getAlbumByName($name, $email);
   public function getAlbumElements($id);
   public function getAlbums($email, $limit = null, $offset = null);

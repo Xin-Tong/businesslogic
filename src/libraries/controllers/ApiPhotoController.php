@@ -432,16 +432,16 @@ class ApiPhotoController extends ApiBaseController
     $albums = array();
     if(isset($attributes['albums']) && !empty($attributes['albums']))
       $albums = (array)explode(',', $attributes['albums']);
-
     $token = null;
     if(isset($attributes['token']) && !empty($attributes['token']))
     {
       $shareTokenObj = new ShareToken;
       $tokenArr = $shareTokenObj->get($attributes['token']);
-      if(empty($tokenArr) || $tokenArr['type'] != 'album')
+      if(empty($tokenArr) || $tokenArr['type'] != 'upload')
         return $this->forbidden('No permissions with the passed in token', false);
       $attributes['albums'] = $tokenArr['data'];
       $token = $tokenArr['id'];
+      $attributes['permission'] = '0';
     }
     else
     {
@@ -562,6 +562,12 @@ class ApiPhotoController extends ApiBaseController
   public function uploadConfirm()
   {
     $params = $_POST;
+
+    $tokenStr = '';
+    if(!empty($params['token']) && !empty($params['albums']))
+      $tokenStr = sprintf('/album-%s/token-%s', $params['albums'], $params['token']);
+
+
     $params['successIds'] = $params['duplicateIds'] = array();
     if(isset($params['success']) && !empty($params['success']))
     {
@@ -573,6 +579,7 @@ class ApiPhotoController extends ApiBaseController
       foreach($params['duplicate'] as $p)
         $params['duplicateIds'][] = $params['successIds'][] = $p['id'];
     }
+
     if(!isset($params['failure']))
       $params['failure'] = array();
 
@@ -585,9 +592,13 @@ class ApiPhotoController extends ApiBaseController
     unset($params['duplicateIds']);
     if(count($params['successIds']) > 0)
     {
-      $photosResp = $this->api->invoke('/photos/list.json', EpiRoute::httpGet, array('_GET' => array('pageSize' => '0', 'ids' => $params['successIds'], 'returnSizes' => $returnSizes)));
+
+      $photosResp = $this->api->invoke(sprintf('/photos%s/list.json', $tokenStr), EpiRoute::httpGet, array('_GET' => array('pageSize' => '0', 'ids' => $params['successIds'], 'returnSizes' => $returnSizes)));
       if($photosResp['code'] === 200 && $photosResp['result'][0]['totalRows'] > 0)
+      {
         $params['successPhotos'] = $photosResp['result'];
+        $params['url'] = $this->url->photosView(substr($tokenStr, 1), false);
+      }
     }
 
     $params['facebookId'] = false;
@@ -597,18 +608,21 @@ class ApiPhotoController extends ApiBaseController
       $params['facebookId'] = $fbConf['id'];
     }
 
-    if(isset($params['ids']) && count($params['ids']) > 0)
-    {
-      $ids = implode(',', $params['ids']);
-      $params['url'] = $this->url->photosView("ids-{$ids}", false);
-      $resourceMapResp = $this->api->invoke('/s/create.json', EpiRoute::httpPost, array('_POST' => array('uri' => $params['url'], 'method' => 'GET', 'crumb' => $this->session->get('crumb'))));
-      if($resourceMapResp['code'] === 201)
-        $params['url'] = $this->url->resourceMap($resourceMapResp['result']['id'], false);
-    }
-
     $template = sprintf('%s/upload-confirm.php', $this->config->paths->templates);
     $body = $this->template->get($template, $params);
     return $this->success('Photos uploaded successfully', array('tpl' => $body, 'data' => $params));
+  }
+
+  /**
+    * Dialog when uploading using a token
+    *
+    * @return string Standard JSON envelope
+    */
+  public function uploadTokenDialog()
+  {
+    $template = sprintf('%s/upload-token-dialog.php', $this->config->paths->templates);
+    $body = $this->template->get($template);
+    return $this->success('Photos uploaded successfully', array('tpl' => $body));
   }
 
   /**
@@ -764,7 +778,7 @@ class ApiPhotoController extends ApiBaseController
           //  or if the token applies to an album this photo is contained in
           if($optionsArr['token']['type'] === 'photo' && $optionsArr['token']['data'] == $id)
             $validToken = true;
-          elseif($optionsArr['token']['type'] === 'album' && in_array($optionsArr['token']['data'], $this->photo->getAlbumsForPhoto($id)))
+          elseif(in_array($optionsArr['token']['type'], array('album','upload')) && in_array($optionsArr['token']['data'], $this->photo->getAlbumsForPhoto($id)))
             $validToken = true;
 
           if($validToken)
@@ -976,7 +990,7 @@ class ApiPhotoController extends ApiBaseController
       {
         switch($token['type'])
         {
-          // if it's a token album then we make sure it's an album page by 
+          // if it's a token album or upload then we make sure it's an album page by 
           //  checking $filters['album']. this works because even on a photo
           //  detail page we might be in an album context
           // we don't do this for a single photo because it could lead to 
@@ -984,6 +998,7 @@ class ApiPhotoController extends ApiBaseController
           //  but looking at a random photo (that might not belong to the album)
           //  in this case the only protection is next/previous but the details 
           //  are leaked
+          case 'upload':
           case 'album':
             if(isset($filters['album']) && $filters['album'] == $token['data'])
               $checkPermissions = false; // disable permission check

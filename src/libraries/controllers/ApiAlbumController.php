@@ -20,9 +20,30 @@ class ApiAlbumController extends ApiBaseController
 
   public function coverUpdate($albumId, $photoId)
   {
-    getAuthentication()->requireAuthentication();
-    getAuthentication()->requireCrumb();
-    $photoResp = $this->api->invoke("/photo/{$photoId}/view.json", EpiRoute::httpGet, array('_GET' => array('generate' => 'true', 'returnSizes' => '100x100,100x100xCR,200x200,200x200xCR')));
+    // check if a token is passed in
+    // if a token is passed we check the type and the data to make sure the permissions are correct
+    // else use default authentication
+    $token = null;
+    $validatedToken = false;
+    if(isset($_POST['token']) && !empty($_POST['token']))
+    {
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($_POST['token']);
+      if(empty($tokenArr) || $tokenArr['type'] != 'upload' || $albumId !== $tokenArr['data'])
+        return $this->forbidden('No permission to add photo to album with the passed in token', false);
+      $token = $tokenArr['id'];
+      $validatedToken = true;
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array(Permission::create), array($albumId));
+      getAuthentication()->requireCrumb();
+    }
+
+    $tokenUrl = '';
+    if(!empty($token))
+      $tokenUrl = sprintf('/token-%s', $token);
+    $photoResp = $this->api->invoke(sprintf('/photo/%s%s/view.json', $photoId, $tokenUrl), EpiRoute::httpGet, array('_GET' => array('generate' => 'true', 'returnSizes' => '100x100,100x100xCR,200x200,200x200xCR')));
     if($photoResp['code'] === 200)
     {
       // TODO: this clobbers anything that was in `extra` (currently nothing)
@@ -76,6 +97,25 @@ class ApiAlbumController extends ApiBaseController
   {
     $template = $this->theme->get('partials/album-form.php');
     return $this->success('Album form', array('markup' => $template));
+  }
+
+  public function inviteUploaders()
+  {
+    $albumId = $_GET['id'];
+    $albumResp = $this->api->invoke(sprintf('/album/%s/view.json', $albumId), EpiRoute::httpGet);
+    if($albumResp['code'] !== 200)
+      return $this->error('Could not retrieve album', false);
+
+    $album = $albumResp['result'];
+
+    $sharingTokenResp = $this->api->invoke(sprintf('/token/upload/%s/create.json', $albumId), EpiRoute::httpPost);
+
+    $token = null;
+    if($sharingTokenResp['code'] === 200 || $sharingTokenResp['code'] === 201)
+      $token = $sharingTokenResp['result'];
+
+    $template = $this->theme->get('partials/album-invite-uploaders.php', array('albumId' => $albumId, 'album' => $album, 'token' => $token));
+    return $this->success('Album start', array('markup' => $template));
   }
 
   public function list_()
@@ -170,18 +210,23 @@ class ApiAlbumController extends ApiBaseController
     // check if a token is passed in
     // if a token is passed we check the type and the data to make sure the permissions are correct
     // else use default authentication
+    $token = null;
+    $validatedToken = false;
     if(isset($_POST['token']) && !empty($_POST['token']))
     {
       $shareTokenObj = new ShareToken;
       $tokenArr = $shareTokenObj->get($_POST['token']);
-      if(empty($tokenArr) || $tokenArr['type'] != 'album' || $albumId !== $tokenArr['data'])
+      if(empty($tokenArr) || $tokenArr['type'] != 'upload' || $albumId !== $tokenArr['data'])
         return $this->forbidden('No permission to add photo to album with the passed in token', false);
+      $token = $tokenArr['id'];
+      $validatedToken = true;
     }
     else
     {
       getAuthentication()->requireAuthentication(array(Permission::create), array($albumId));
       getAuthentication()->requireCrumb();
     }
+
     $this->logger->info(sprintf('Calling ApiAlbumController::updateIndex with %s, %s, %s', $albumId, $type, $action));
 
     if(!isset($_POST['ids']) || empty($_POST['ids']))
@@ -193,13 +238,13 @@ class ApiAlbumController extends ApiBaseController
         $resp = $this->album->addElement($albumId, $type, $_POST['ids']);
         if($resp)
         {
-          $album = $this->album->getAlbum($albumId, false);
+          $album = $this->album->getAlbum($albumId, false, null, $validatedToken);
           if(empty($album['cover']))
           {
             $ids = (array)explode(',', $_POST['ids']);
             $id = array_pop($ids);
             // TODO do we need to pass the token in here?
-            $this->api->invoke("/album/{$albumId}/cover/{$id}/update.json", EpiRoute::httpPost);
+            $this->api->invoke("/album/{$albumId}/cover/{$id}/update.json", EpiRoute::httpPost, array('_POST' => array('token' => $token)));
           }
         }
         break;
@@ -236,11 +281,21 @@ class ApiAlbumController extends ApiBaseController
 
   public function view($id)
   {
-    $includeElements = false;
+    $includeElements = $validatedToken = false;
     if(isset($_GET['includeElements']) && $_GET['includeElements'] == '1')
       $includeElements = true;
-    $album = $this->album->getAlbum($id, $includeElements);
 
+    $token = null;
+    if(isset($_GET['token']) && !empty($_GET['token']))
+    {
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($_GET['token']);
+      // make sure the token isn't empty and that it's ID matches this id
+      if(!empty($tokenArr) && $id == $tokenArr['data'] && ($tokenArr['type'] == 'album' || $tokenArr['type'] == 'upload'))
+        $token = $_GET['token'];
+    }
+
+    $album = $this->album->getAlbum($id, $includeElements, null, $token);
     if($album === false)
       return $this->error('Could not retrieve album', false);
 

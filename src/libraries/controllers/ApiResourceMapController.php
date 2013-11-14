@@ -22,7 +22,19 @@ class ApiResourceMapController extends ApiBaseController
 
   public function create()
   {
-    getAuthentication()->requireAuthentication(array(Permission::create));
+    $token = null;
+    if(isset($_POST['token']) && !empty($_POST['token']))
+    {
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($_POST['token']);
+      if(empty($tokenArr) || $tokenArr['type'] != 'upload')
+        return $this->forbidden('No permissions with the passed in token', false);
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array(Permission::create));
+    }
+
     $id = $this->resourceMap->create($_POST);
     if(!$id)
       return $this->error('Could not generate resource map.', false);

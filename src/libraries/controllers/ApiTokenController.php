@@ -30,6 +30,13 @@ class ApiTokenController extends ApiController
     $params = $_POST;
     $params['type'] = $type;
     $params['data'] = $data;
+
+    // gh-1414 check if at least one token exists
+    //  we originally allowed multiple so we have to get this as an array
+    $tok = $this->token->getByTarget($type, $data);
+    if(count($tok) > 0)
+      return $this->success('Token exists, returning it', $tok[0]);
+
     $id = $this->token->create($params);
     if($id === false)
       return $this->error('Could not create share token', false);

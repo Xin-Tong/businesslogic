@@ -36,13 +36,14 @@ $apiObj->post('/?v?[1-2]?/activity/create.json', array('ApiActivityController', 
  * /album[s][/:id]/{action}.json
  */
 $apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/cover/([a-zA-Z0-9]+)/update.json', array('ApiAlbumController', 'coverUpdate'), EpiApi::external); // update an album cover (/album/:albumId/cover/:photoId/update.json)
-$apiObj->post('/?v?[1-2]?/album/create.json', array('ApiAlbumController', 'create'), EpiApi::external); // post an activity (/activity/create.json)
-$apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/delete.json', array('ApiAlbumController', 'delete'), EpiApi::external); // post an activity (/activity/create.json)
-$apiObj->get('/?v?[1-2]?/album/form.json', array('ApiAlbumController', 'form'), EpiApi::external); // post an activity (/activity/create.json)
-$apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/(photo)/(add|remove).json', array('ApiAlbumController', 'updateIndex'), EpiApi::external); // post an action (/action/{id}/{type}/{action}.json)
-$apiObj->get('/?v?[1-2]?/albums/list.json', array('ApiAlbumController', 'list_'), EpiApi::external); // retrieve activities (/albums/list.json)
+$apiObj->post('/?v?[1-2]?/album/create.json', array('ApiAlbumController', 'create'), EpiApi::external); // create an album
+$apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/delete.json', array('ApiAlbumController', 'delete'), EpiApi::external); // delete an album
+$apiObj->get('/?v?[1-2]?/album/form.json', array('ApiAlbumController', 'form'), EpiApi::external); // form to create an album
+$apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/(photo)/(add|remove).json', array('ApiAlbumController', 'updateIndex'), EpiApi::external); // add or remove an element from an album
+$apiObj->get('/?v?[1-2]?/albums/list.json', array('ApiAlbumController', 'list_'), EpiApi::external); // retrieve albums
+$apiObj->get('/?v?[1-2]?/album/invite/uploaders.json', array('ApiAlbumController', 'inviteUploaders'), EpiApi::external); // getting started markup for after creating an album
 $apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/update.json', array('ApiAlbumController', 'update'), EpiApi::external); // update an album (/album/{id}/update.json)
-$apiObj->get('/?v?[1-2]?/album/([a-zA-Z0-9]+)/view.json', array('ApiAlbumController', 'view'), EpiApi::external); // retrieve activity (/activity/:id/view.json)
+$apiObj->get('/?v?[1-2]?/album/([a-zA-Z0-9]+)/view.json', array('ApiAlbumController', 'view'), EpiApi::external); // view an album
 
 /*
  * Manage endpoints
@@ -89,6 +90,7 @@ $apiObj->post('/?v?[1-2]?/photos/delete.json', array('ApiPhotoController', 'dele
 $apiObj->post('/?v?[1-2]?/photos/update.json', array('ApiPhotoController', 'updateBatch'), EpiApi::external); // update multiple photos (/photos/update.json)
 $apiObj->get('/?v?[1-2]?/photos/update.json', array('ApiPhotoController', 'updateBatchForm'), EpiApi::external); // update multiple photos (/photos/update.json)
 $apiObj->post('/?v?[1-2]?/photo/upload.json', array('ApiPhotoController', 'upload'), EpiApi::external); // upload a photo
+$apiObj->get('/?v?[1-2]?/photos/upload/token/dialog.json', array('ApiPhotoController', 'uploadTokenDialog'), EpiApi::external); // upload a photo
 $apiObj->post('/?v?[1-2]?/photos/upload/confirm.json', array('ApiPhotoController', 'uploadConfirm'), EpiApi::external); // confirmaton after upload
 $apiObj->get('/?v?[1-2]?/photo/([a-zA-Z0-9]+)/url/(\d+)x(\d+)x?([A-Zx]*)?.json', array('ApiPhotoController', 'dynamicUrl'), EpiApi::external); // generate a dynamic photo url (/photo/{id}/url/{options}.json) TODO, make internal for now
 $apiObj->get('/?v?[1-2]?/photo/([a-zA-Z0-9]+)/nextprevious/?(.+)?.json', array('ApiPhotoController', 'nextPrevious'), EpiApi::external); // get a photo's next/previous (/photo/{id}/nextprevious[/{options}].json)
@@ -129,7 +131,7 @@ $apiObj->get('/?v?[1-2]?/tags/list.json', array('ApiTagController', 'list_'), Ep
  * Everything in []'s are optional
  * /tag[s][/{id}/]{action}.json
  */
-$apiObj->post('/?v?[1-2]?/token/(album|photo)/([a-zA-Z0-9]+)/create.json', array('ApiTokenController', 'create'), EpiApi::external); // create a sharing token (/token/:type/:data/create.json)
+$apiObj->post('/?v?[1-2]?/token/(album|photo|upload)/([a-zA-Z0-9]+)/create.json', array('ApiTokenController', 'create'), EpiApi::external); // create a sharing token (/token/:type/:data/create.json)
 $apiObj->post('/?v?[1-2]?/token/([a-zA-Z0-9]+)/delete.json', array('ApiTokenController', 'delete'), EpiApi::external); // delete a sharing token (/token/:id/delete.json)
 $apiObj->get('/?v?[1-2]?/token/([a-zA-Z0-9]+)/view.json', array('ApiTokenController', 'view'), EpiApi::external); // get an existing sharing token (/token/:id/view.json)
 $apiObj->get('/?v?[1-2]?/token/(album|photo)/([a-zA-Z0-9]+)/list.json', array('ApiTokenController', 'listByTarget'), EpiApi::external); // list sharing tokens for a target (/token/:type/:data/view.json)

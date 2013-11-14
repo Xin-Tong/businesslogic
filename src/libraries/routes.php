@@ -64,7 +64,7 @@ $routeObj->get('/photo/([a-zA-Z0-9]+)/?(.+)?/view', array('PhotoController', 'vi
 $routeObj->get('/p/([a-zA-Z0-9]+)/?(.+)?', array('PhotoController', 'view')); // (shortcut for photo/view) view a photo (/p/{id}[/{options}])
 $routeObj->post('/photo/([a-zA-Z0-9]+)/update', array('PhotoController', 'update')); // update a photo (/photo/{id}/update
 $routeObj->post('/photo/upload', array('PhotoController', 'uploadPost')); // upload a photo
-$routeObj->get('/photos/upload', array('PhotoController', 'upload')); // view the upload photo form
+$routeObj->get('/photos/upload/?([a-z0-9]{10})?', array('PhotoController', 'upload')); // view the upload photo form
 $routeObj->get('/photos/upload/beta', array('PhotoController', 'uploadBeta')); // upload a photo
 $routeObj->get('/photos/?(.+)?/list', array('PhotoController', 'list_')); // view all photos / optionally filter (/photos[/{options})]/list
 

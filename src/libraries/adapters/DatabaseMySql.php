@@ -349,14 +349,14 @@ class DatabaseMySql implements DatabaseInterface
     * @param string $email email of viewer to determine which albums they have access to
     * @return mixed Array on success, FALSE on failure
     */
-  public function getAlbum($id, $email)
+  public function getAlbum($id, $email, $validatedToken = false)
   {
     $album = $this->db->one("SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND `id`=:id ",
       array(':id' => $id, ':owner' => $this->owner));
 
     if($album === false)
       return false;
-    else if((empty($email) || $this->owner !== $email || $this->getActor() !== $email) && $album['countPublic'] == 0)
+    else if(!$validatedToken && (empty($email) || $this->owner !== $email || $this->getActor() !== $email) && $album['countPublic'] == 0)
       return false;
 
     $album = $this->normalizeAlbum($album);
