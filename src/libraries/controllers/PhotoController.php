@@ -142,6 +142,7 @@ class PhotoController extends BaseController
 
     $isAlbum = preg_match('/album-([^\/]+)/', $filterOpts, $filterAlbumMatches);
     $isTags = preg_match('/tags-([^\/]+)/', $filterOpts, $filterTagsMatches);
+    $isToken = preg_match('/token-([^\/]+)/', $filterOpts, $filterTokenMatches);
 
     $getParams = array();
     if(!empty($_SERVER['QUERY_STRING']))
@@ -180,7 +181,10 @@ class PhotoController extends BaseController
     $album = $tags = null;
     if($isAlbum)
     {
-      $albumResp = $this->api->invoke("/album/{$filterAlbumMatches[1]}/view.json", EpiRoute::httpGet);
+      $albumParams = array();
+      if($isToken)
+        $albumParams['token'] = $filterTokenMatches[1];
+      $albumResp = $this->api->invoke("/album/{$filterAlbumMatches[1]}/view.json", EpiRoute::httpGet, array('_GET' => $albumParams));
       $album = $albumResp['result'];
       $filterAttributes[] = 'album';
       $this->plugin->setData('album', $album);
