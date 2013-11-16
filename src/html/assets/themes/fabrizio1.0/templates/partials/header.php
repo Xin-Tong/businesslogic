@@ -55,6 +55,7 @@
           <li><span class="profile-name-meta owner"></span></li>
           <?php $this->theme->display('partials/header-secondary.php', array()); ?>
         </ul>
+        &nbsp;
         <ul class="nav pull-right">
           <?php if($numTutorials = $this->user->numberOfTutorials()) { ?>
             <li class="info hidden-phone"><a href="#" class="tutorial" title="Click here to reveal new features."><span class="badge badge-info tutorial"><?php $this->utility->safe($numTutorials); ?></span> New <?php $this->utility->plural($numTutorials, 'Feature'); ?> On This Page</a>

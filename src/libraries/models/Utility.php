@@ -91,7 +91,7 @@ class Utility
     if($path === null)
       $path = $_GET['__route__'];
 
-    if(!preg_match(sprintf('#/%s-([^/])#', $name), $path, $matches))
+    if(!preg_match(sprintf('#/%s-([^/]+)#', $name), $path, $matches))
       return null;
 
     return $matches[1];

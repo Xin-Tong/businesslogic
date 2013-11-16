@@ -23,15 +23,19 @@
         <label for="tags">Tags</label>
         <input type="search" name="tags" class="typeahead tags" autocomplete="off" placeholder="Optional comma separated list">
 
-        <div class="control-group">
-          <label class="control-label">Albums <small>(<a href="#" class="showBatchForm album" data-action="albums">create new</a>)</small></label>
-          <select data-placeholder="Select albums for these photos" name="albums" class="typeahead">
-            <?php if($allowSkipAlbum) { ?><option value="">If you'd like, choose an album</option><?php } ?>
-            <?php foreach($albums as $album) { ?>
-              <option value="<?php $this->utility->safe($album['id']); ?>"><?php $this->utility->safe($album['name']); ?></option>
-            <?php } ?>
-          </select>
-        </div>
+        <?php if(empty($token)) { ?>
+          <div class="control-group">
+            <label class="control-label">Albums <small>(<a href="#" class="showBatchForm album" data-action="albums">create new</a>)</small></label>
+            <select data-placeholder="Select albums for these photos" name="albums" class="typeahead">
+              <?php if($allowSkipAlbum) { ?><option value="">If you'd like, choose an album</option><?php } ?>
+              <?php foreach($albums as $album) { ?>
+                <option value="<?php $this->utility->safe($album['id']); ?>"><?php $this->utility->safe($album['name']); ?></option>
+              <?php } ?>
+            </select>
+          </div>
+        <?php } else { ?>
+          <input type="hidden" name="albums" value="<?php $this->utility->safe($albums[0]['id']); ?>">
+        <?php } ?>
 
         <?php if(empty($token)) { ?>
           <div class="control-group">

@@ -95,13 +95,15 @@ OPU = (function() {
                 }
 
                 OP.Util.fire('upload:complete-success', photosUploaded);
+                if(token.length > 0)
+                  OP.Util.fire('upload:send-notification', {token: token, by: OP.Util.config.uploadedBy || '', photosUploaded: photosUploaded});
               },
               UploadFile: function() {
                 var uploader = $("#uploader").pluploadQueue(),
                     form = $('form.upload'),
                     license = $("select[name='license'] :selected", form).val(),
                     permission = $("input[name='permission']:checked", form).val(),
-                    albums = $("select[name='albums']", form).val(),
+                    albums = $("*[name='albums']", form).val(),
                     tags = $("input[name='tags']", form).val(),
                     crumb = $("input[name='crumb']", form).val(),
                     token = $("input[name='token']", form).val(),

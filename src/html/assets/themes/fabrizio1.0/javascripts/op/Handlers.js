@@ -473,9 +473,14 @@
     };
     this.submit.uploadTokenDialog = function(ev) {
       ev.preventDefault();
-      var $form = $(ev.target), $tagField = $('form.upload input[name="tags"]'), ident = $('input[name="identifier"]', $form).val();
-      $tagField.val(TBX.format.sprintf('uploadedBy:%s', ident));
-      TBX.modal.close();
+      var $form = $(ev.target), $tagField = $('form.upload input[name="tags"]'), $identField = $('input[name="identifier"]', $form), ident = $identField.val();
+      if(ident.length > 0) {
+        $tagField.val(TBX.format.sprintf('uploadedBy:%s', ident));
+        OP.Util.config.uploadedBy = ident;
+        TBX.modal.close();
+      } else {
+        $identField.closest('.control-group').addClass('error');
+      }
     };
     
     // change
