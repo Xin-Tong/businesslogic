@@ -283,7 +283,7 @@
       var $form = $("form.upload");
       photoResponse.crumb = TBX.crumb();
       photoResponse.token = $('input[name="token"]', $form).val();
-      photoResponse.albums = $("select[name='albums']", $form).val(),
+      photoResponse.albums = $("*[name='albums']", $form).val(),
       $form.fadeOut('fast', function() {
         OP.Util.makeRequest('/photos/upload/confirm.json', photoResponse, TBX.callbacks.uploadConfirm, 'json', 'post');
       });
