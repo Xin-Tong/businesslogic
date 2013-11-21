@@ -520,6 +520,35 @@ class UserTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($res);
   }
 
+  public function testIsOwnerTrueLoggedInAsAdminIgnoreCase()
+  {
+    $this->credential->expects($this->any())
+      ->method('isOAuthRequest')
+      ->will($this->returnValue(false));
+    $session = $this->getMock('session', array('get'));
+    $session->expects($this->any())
+      ->method('get')
+      ->will($this->returnValue('someoneelse@example.com'));
+    $this->getMock('session', array('get'));
+    $session->expects($this->any())
+      ->method('get')
+      ->will($this->returnValue('test@example.com'));
+    $config = new stdClass;
+    $config->user = new stdClass;
+    $config->user->email = 'test@example.com';
+    $config->user->admins = 'SoMeOnEeLsE@ExAmPlE.CoM';
+    $this->user->inject('session', $session);
+    $this->user->inject('credential', $this->credential);
+    $this->user->inject('config', $config);
+
+    $res = $this->user->isOwner();
+    $this->assertFalse($res);
+    $res = $this->user->isOwner(true);
+    $this->assertTrue($res);
+    $res = $this->user->isAdmin();
+    $this->assertTrue($res);
+  }
+
   public function testIsOwnerOAuthInvalid()
   {
     $this->credential->expects($this->any())
@@ -602,6 +631,26 @@ class UserTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($res);
   }
 
+  public function testIsOwnerIgnoreCase()
+  {
+    $this->credential->expects($this->any())
+      ->method('isOAuthRequest')
+      ->will($this->returnValue(false));
+    $session = $this->getMock('session', array('get'));
+    $session->expects($this->any())
+      ->method('get')
+      ->will($this->returnValue('TeSt@eXaMpLe.CoM'));
+    $config = new stdClass;
+    $config->user = new stdClass;
+    $config->user->email = 'test@example.com';
+    $this->user->inject('session', $session);
+    $this->user->inject('credential', $this->credential);
+    $this->user->inject('config', $config);
+
+    $res = $this->user->isOwner();
+    $this->assertTrue($res);
+  }
+
   public function testIsAdminButAsOwnerOAuthTrue()
   {
     $this->credential->expects($this->exactly(2))
@@ -614,13 +663,34 @@ class UserTest extends PHPUnit_Framework_TestCase
       ->method('getEmailFromOAuth')
       ->will($this->returnValue('test@example.com'));
     $this->user->inject('credential', $this->credential);
+
     $config = new stdClass;
     $config->user = new stdClass;
     $config->user->email = 'test@example.com';
-    $config->user->admins = 'dne@example.com,foo@bar.com';
     $this->user->inject('config', $config);
 
     $res = $this->user->isOwner(true);
+    $this->assertTrue($res);
+  }
+
+  public function testIsOwnerOAuthIgnoreCase()
+  {
+    $this->credential->expects($this->any())
+      ->method('isOAuthRequest')
+      ->will($this->returnValue(true));
+    $this->credential->expects($this->once())
+      ->method('checkRequest')
+      ->will($this->returnValue(true));
+    $this->credential->expects($this->once())
+      ->method('getEmailFromOAuth')
+      ->will($this->returnValue('TeSt@ExAmPlE.CoM'));
+    $this->user->inject('credential', $this->credential);
+    $config = new stdClass;
+    $config->user = new stdClass;
+    $config->user->email = 'test@example.com';
+    $this->user->inject('config', $config);
+
+    $res = $this->user->isOwner();
     $this->assertTrue($res);
   }
 

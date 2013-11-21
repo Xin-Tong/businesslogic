@@ -171,14 +171,14 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
       ->method('all')
       ->will($this->onConsecutiveCalls(
         MySqlMockHelper::getPhotos(2),
-        array('key' => 'foo', 'path' => 'bar'), // getPhotoVersions
-        array('key' => 'foo', 'path' => 'bar') // getPhotoVersions
+        array(array('key' => 'id', 'path' => 'bar')), // getPhotoVersions
+        array(array('key' => 'id', 'path' => 'bar')) // getPhotoVersions
       ));
     $this->db->inject('db', $db);
 
     $res = $this->db->getAlbumElements('id');
     $this->assertEquals(2, count($res));
-    $this->assertEquals($res[0]['id'], 'foo');
+    $this->assertEquals($res[0]['id'], 'bar');
   }
 
   public function testGetAlbumElementsFailure()
@@ -322,7 +322,7 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
     // photo versions
     $db->expects($this->any())
       ->method('all')
-      ->will($this->returnValue(array('one' => 'version')));
+      ->will($this->returnValue(array(array('key' => 'id', 'path' => 'foo')))); // getPhotoVersions
     $this->db->inject('db', $db);
 
     $res = $this->db->getPhoto('foo');
