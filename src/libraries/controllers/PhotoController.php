@@ -289,6 +289,11 @@ class PhotoController extends BaseController
     */
   public function uploadBeta()
   {
+    $notificationObj = new Notification;
+    $notificationObj->add('Thanks for your feedback on our beta uploader. We are incorporating the feedback to make it better.');
+    $this->route->redirect('/photos/upload');
+    return;
+
     getAuthentication()->requireAuthentication(array('C'));
     // do we need this?
     $userObj = new User;
