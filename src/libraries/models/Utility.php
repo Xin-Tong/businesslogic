@@ -175,7 +175,7 @@ class Utility
                 $retval .= $key2."[] = \"".$elem2[$i]."\"\n"; 
               } 
             } 
-            else if($elem2=="") $retval .= $key2." = \n"; 
+            //else if($elem2=="") $retval .= $key2." = \n"; 
             else $retval .= $key2." = \"".$elem2."\"\n"; 
           } 
         }
