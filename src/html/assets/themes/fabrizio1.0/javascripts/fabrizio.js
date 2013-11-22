@@ -86,7 +86,7 @@
                 context.page = 1;
             }
 
-            var api = context.pageLocation.pathname+'.json';
+            var api = context.pageLocation.pathname+'.json',
                 params = {}, qs = context.pageLocation.search.replace('?', '');
             
             if(qs.length > 0) {
@@ -377,6 +377,14 @@
           },
           load: function() {
             var _this = TBX.init.pages.photos, async = typeof(arguments[0]) === 'undefined' ? true : arguments[0];
+            // since sort order for the API is static and onload changes the sort order for albums and gallery we need to mimic the controller behavior in JS
+            if(_this.pageLocation.search.search('sortBy') === -1) {
+              if(_this.pageLocation.pathname.search('/album-') === -1) // gallery
+                _this.pageLocation.search += '&sortBy=dateUploaded,desc';
+              else // album
+                _this.pageLocation.search += '&sortBy=dateTaken,asc';
+            }
+
             util.load(_this, async);
           },
           loadCb: function(response) {
