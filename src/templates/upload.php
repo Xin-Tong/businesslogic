@@ -1,6 +1,6 @@
 <div class="hide row upload-confirm"></div>
 <div class="upload-container">
-  <div class="upload-message upload-progress"><img src="/assets/images/upload-big.gif" align="absmiddle">Currently uploading <span class="completed">0</span> of <span class="total">0</span> photos.</div>
+  <div class="upload-message upload-progress"><i class="icon-spinner icon-spin"></i> Uploading <span class="completed">0</span> of <span class="total">0</span>.</div>
 
   <form class="upload form-stacked photo-upload-submit" method="post" action="/photo/upload">
     <div class="row">
