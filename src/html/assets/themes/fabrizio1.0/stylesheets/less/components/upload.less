@@ -97,12 +97,12 @@ body.upload {
   }
 
   .plupload_wrapper {
-    font: normal 11px Verdana,sans-serif;
+    font-size: 11px;
     width: 100%;
   }
 
   .plupload_container {
-    padding: 8px;
+    //padding: 8px;
     background: url('../images/transp50.png');
     /*-moz-border-radius: 5px;*/
   }
@@ -150,6 +150,13 @@ body.upload {
     .plupload_file_size, .plupload_file_status, .plupload_progress {
       @media only screen and (max-width: 480px) {
         display:none;
+      }
+    }
+    @media only screen and (max-width: 480px) {
+      .plupload_mobile_button {
+        position:absolute;
+        top:6px;
+        left:145px;
       }
     }
   }

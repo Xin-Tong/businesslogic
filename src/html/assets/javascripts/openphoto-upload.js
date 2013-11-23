@@ -33,6 +33,7 @@ OPU = (function() {
             unique_names : true,
             keep_droptext : true,
             browse_button : 'uploader_browse_alt',
+            keep_droptext : window.innerWidth > 480,
 
             // Specify what files to browse for
             filters : [

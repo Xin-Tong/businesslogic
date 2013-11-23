@@ -65,6 +65,7 @@
 								'<div class="plupload_file_action">&nbsp;</div>' +
 								'<div class="plupload_file_status"><span>' + _('Status') + '</span></div>' +
 								'<div class="plupload_file_size">' + _('Size') + '</div>' +
+                (window.innerWidth <= 480 ? '<div class="plupload_mobile_button">' + '<a href="" class="btn btn-theme-tertiary" id="uploader_browse"><i class="icon-paperclip"></i> Select photos</a>' + '</div>' : '') + 
 								'<div class="plupload_clearer">&nbsp;</div>' +
 							'</div>' +
 
@@ -188,7 +189,7 @@
 
 					// Re-add drag message if there is no files or droptext is configured to be permanent
 					if (settings.keep_droptext || (!uploader.files.length && uploader.features.dragdrop && uploader.settings.dragdrop)) {
-						$('#' + id + '_filelist').append('<li class="plupload_droptext"><span class="visible-phone"><a href="" class="btn btn-theme-tertiary" id="uploader_browse"><i class="icon-paperclip"></i> Select photos</a></span><span class="hidden-phone">Drag photos here.</span></li>');
+						$('#' + id + '_filelist').append('<li class="plupload_droptext"><span class="visible-phone">&nbsp;</span><span class="hidden-phone">Drag photos here.</span></li>');
 					}
 				}
 
@@ -239,7 +240,7 @@
 					// Enable drag/drop
 					if (up.features.dragdrop && up.settings.dragdrop) {
 						up.settings.drop_element = id + '_filelist';
-						$('#' + id + '_filelist').append('<li class="plupload_droptext"><span class="visible-phone"><a href="" class="btn btn-theme-tertiary" id="uploader_browse"><i class="icon-paperclip"></i> Select photos</a></span><span class="hidden-phone">Drag photos here.</span></li>');
+						$('#' + id + '_filelist').append('<li class="plupload_droptext"><span class="visible-phone">&nbsp;</span><span class="hidden-phone">Drag photos here.</span></li>');
 					}
 
 					$('#' + id + '_container').attr('title', 'Using runtime: ' + res.runtime);
