@@ -125,6 +125,11 @@ body.upload .insufficient {
 .plupload_filelist_header {	
 	border-top: 1px solid #EEE;
 	border-bottom: 1px solid #CDCDCD;
+  .plupload_file_size, .plupload_file_status, .plupload_progress {
+    @media only screen and (max-device-width: 480px) {
+      display:none;
+    }
+  }
 }
 
 .plupload_filelist_footer {border-top: 1px solid #FFF; height: 22px; line-height: 20px; vertical-align: middle;}
@@ -134,10 +139,22 @@ body.upload .insufficient {
 .plupload_file_size, .plupload_file_status, .plupload_progress {
 	float: right;
 	width: 80px;
+  @media only screen and (max-device-width: 480px) {
+    width:40px;
+  }
 }
 .plupload_file_size, .plupload_file_status, .plupload_file_action {text-align: right;}
 
-.plupload_filelist .plupload_file_name {width: 205px}
+.plupload_filelist .plupload_file_name {
+  width: 205px
+  text-overflow: ellipsis;
+  white-space: nowrap;
+	overflow: hidden;
+  @media only screen and (max-device-width: 480px) {
+    width: 100px;
+  }
+}
+
 
 .plupload_file_action {
 	float: right;
@@ -208,5 +225,9 @@ li.plupload_droptext {
 	border: 0;
   font-size:30px;
 	line-height: 165px;
+  @media only screen and (max-device-width: 480px) {
+	  line-height: 40px;
+    padding:40px 0;
+  }
 }
 

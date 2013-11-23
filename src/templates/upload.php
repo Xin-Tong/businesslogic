@@ -15,13 +15,17 @@
             </p>
           </div>
         </div>
-        <em class="poweredby">Powered by <a href="http://www.plupload.com">Plupload</a>.</em>
+        <em class="poweredby hidden-phone">Powered by <a href="http://www.plupload.com">Plupload</a>.</em>
       </div>
       <div class="span4">
         <h3>Use these settings.</h3>
         <br>
-        <label for="tags">Tags</label>
-        <input type="search" name="tags" class="typeahead tags" autocomplete="off" placeholder="Optional comma separated list">
+        <?php if(empty($token)) { ?>
+          <label for="tags">Tags</label>
+          <input type="search" name="tags" class="typeahead tags" autocomplete="off" placeholder="Optional comma separated list">
+        <?php } else { ?>
+          <input type="hidden" name="tags">
+        <?php } ?>
 
         <?php if(empty($token)) { ?>
           <div class="control-group">

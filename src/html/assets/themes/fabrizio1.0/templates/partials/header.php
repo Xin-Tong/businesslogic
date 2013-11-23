@@ -10,7 +10,7 @@
         </a>
         
         <?php if($this->user->isLoggedIn()) { ?>
-          <div class="user">
+          <div class="user hidden-phone">
             <a href="#" class="profile-link profile-photo-header-meta" data-toggle="dropdown"></a>
             <ul class="dropdown-menu" role="menu">
               <?php if($this->session->get('site') != '' && $this->utility->gethost() != $this->session->get('site')) { ?>
@@ -23,7 +23,7 @@
             </ul>
           </div>
         <?php } else { ?>
-          <div class="user">
+          <div class="user hidden-phone">
             <a href="/user/login?r=<?php $this->utility->safe($_SERVER['REQUEST_URI']); ?>" class="btn btn-theme-secondary">Sign In</a>
             <?php if($this->config->site->displaySignupLink == 1) { ?>
               <a href="<?php $this->utility->safe($this->config->site->displaySignupUrl); ?>" class="btn btn-brand btn-arrow">Sign Up</a>
@@ -38,6 +38,11 @@
             <li class="<?php if($this->utility->isActiveTab('tags')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->tagsView(); ?>"><i class="icon-tags"></i> Tags</a></li>
             <?php if($this->permission->canUpload()) { ?>
               <li class="<?php if($this->utility->isActiveTab('upload')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->photosUpload(); ?>"><i class="icon-upload"></i> Upload</a></li>
+            <?php } ?>
+            <?php if($this->user->isLoggedIn()) { ?>
+              <li class="visible-phone"><a href="/user/logout"><i class="icon-signout"></i> Sign Out</a></li>
+            <?php } else { ?>
+              <li class="visible-phone"><a href="/user/login?r=<?php $this->utility->safe($_SERVER['REQUEST_URI']); ?>"><i class="icon-signin"></i> Sign In</a></li>
             <?php } ?>
           </ul>
           <div class="search-wrap separator-left">

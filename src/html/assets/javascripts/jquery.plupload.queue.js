@@ -43,7 +43,8 @@
 							'<div class="plupload_filelist_footer">' +
 								'<div class="plupload_file_name">' +
 									'<div class="plupload_buttons">' +
-										'<a href="#" class="plupload_button plupload_add">' + _('Add photos') + '</a>' +
+										//'<a href="#" class="plupload_button plupload_add hidden-phone">' + _('Add photos') + '</a>' +
+										(window.innerWidth > 480 ? '<a href="" class="btn btn-theme-tertiary" id="uploader_browse"><i class="icon-paperclip"></i> Select photos</a>' : '') +
 										'<a href="#" class="plupload_button plupload_start">' + _('Start upload') + '</a>' +
 									'</div>' +
 									'<span class="plupload_upload_status"></span>' +
@@ -187,7 +188,7 @@
 
 					// Re-add drag message if there is no files or droptext is configured to be permanent
 					if (settings.keep_droptext || (!uploader.files.length && uploader.features.dragdrop && uploader.settings.dragdrop)) {
-						$('#' + id + '_filelist').append('<li class="plupload_droptext">' + _("Drag photos here.") + '</li>');
+						$('#' + id + '_filelist').append('<li class="plupload_droptext"><span class="visible-phone"><a href="" class="btn btn-theme-tertiary" id="uploader_browse"><i class="icon-paperclip"></i> Select photos</a></span><span class="hidden-phone">Drag photos here.</span></li>');
 					}
 				}
 
@@ -238,7 +239,7 @@
 					// Enable drag/drop
 					if (up.features.dragdrop && up.settings.dragdrop) {
 						up.settings.drop_element = id + '_filelist';
-						$('#' + id + '_filelist').append('<li class="plupload_droptext">' + _("Drag photos here.") + '</li>');
+						$('#' + id + '_filelist').append('<li class="plupload_droptext"><span class="visible-phone"><a href="" class="btn btn-theme-tertiary" id="uploader_browse"><i class="icon-paperclip"></i> Select photos</a></span><span class="hidden-phone">Drag photos here.</span></li>');
 					}
 
 					$('#' + id + '_container').attr('title', 'Using runtime: ' + res.runtime);
