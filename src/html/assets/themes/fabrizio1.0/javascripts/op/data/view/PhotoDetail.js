@@ -410,7 +410,6 @@
     },
     
     go : function(id){
-      
       if( this.model === this.store.get(id)) return;
       
       // get the difference
