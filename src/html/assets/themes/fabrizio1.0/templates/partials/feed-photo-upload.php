@@ -14,7 +14,7 @@
       <ul class="unstyled">
         <?php foreach($activity as $activityDetails) { ?>
           <li>
-            <a href="<?php echo $activityDetails['data']['url']; ?>">
+            <a href="<?php echo $activityDetails['data']['url']; ?>?sortBy=dateUploaded,desc">
               <img src="<?php $this->utility->safe($activityDetails['data']['path100x100xCR']); ?>" class="activityfeed-thumbnail">
             </a>
           </li>
