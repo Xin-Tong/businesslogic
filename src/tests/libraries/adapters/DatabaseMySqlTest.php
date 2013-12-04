@@ -27,9 +27,10 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
 {
   public function setUp()
   {
+    $this->ownerEmail = 'test@example.com';
     $config = array(
       'mysql' => array('mySqlDb' => 'foo', 'mySqlHost' => 'bar', 'mySqlUser' => 'foo', 'mySqlPassword' => 'bar'),
-      'user' => array('email' => 'test@example.com'),
+      'user' => array('email' => $this->ownerEmail), 
       'application' => array('appId' => 'fooId')
     );
     $config = arrayToObject($config);
@@ -124,7 +125,7 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
       ->will($this->returnValue(array('name' => 'unittest', 'countPublic' => '1')));
     $this->db->inject('db', $db);
 
-    $res = $this->db->getAlbum('foo', 'test@example.com');
+    $res = $this->db->getAlbum('foo', $this->ownerEmail);
     $this->assertEquals($res['name'], 'unittest', 'The MySql adapter did not return the album name for getAlbum');
   }
 
@@ -136,7 +137,7 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
       ->will($this->returnValue(array('name' => 'unittest', 'countPublic' => '1', 'extra' => json_encode(array('cover' => 'foo')))));
     $this->db->inject('db', $db);
 
-    $res = $this->db->getAlbum('foo', 'test@example.com');
+    $res = $this->db->getAlbum('foo', $this->ownerEmail);
     $this->assertEquals($res['cover'], 'foo', 'The MySql adapter did not return the album name for getAlbum with extra');
   }
 
@@ -201,7 +202,7 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
       ->will($this->returnValue(array('name' => 'unittest', 'countPublic' => '1')));
     $this->db->inject('db', $db);
 
-    $res = $this->db->getAlbum('foo', 'test@example.com');
+    $res = $this->db->getAlbum('foo', $this->ownerEmail);
     $this->assertEquals($res['name'], 'unittest', 'The MySql adapter did not return the album name for getAlbum');
   }
 
@@ -303,14 +304,53 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
     $this->assertFalse($res, 'The MySql adapter did not return FALSE for getGroups');
   }
 
-  public function testGetGroupsByUserSuccess()
+  public function testGetGroupsByUserOwnerSuccess()
   {
-    $this->markTestIncomplete('This test has not been implemented yet. #1247');
+    $db = $this->getMock('MySqlMock', array('all'));
+    $db->expects($this->any())
+      ->method('all')
+      ->will($this->returnValue(array(array('timestamp'=>1,'album'=>1,'group'=>1,'user'=>1), array('timestamp'=>1,'album'=>1,'group'=>1,'user'=>1))));
+    $this->db->inject('db', $db);
+
+    $res = $this->db->getGroupsByUser($this->ownerEmail); // is owner
+    $this->assertEquals(count($res), 2);
+  }
+
+  public function testGetGroupsByUserNotOwnerSuccess()
+  {
+    $db = $this->getMock('MySqlMock', array('all'));
+    $db->expects($this->any())
+      ->method('all')
+      ->will($this->returnValue(array(array('timestamp'=>1,'album'=>1,'group'=>1,'user'=>1), array('timestamp'=>1,'album'=>1,'group'=>1,'user'=>1))));
+    $this->db->inject('db', $db);
+
+    $res = $this->db->getGroupsByUser('notowner@email.com');
+    $this->assertEquals(count($res), 2);
+  }
+
+  // gh-1425
+  public function testGetGroupsByUserEmptyEmail()
+  {
+    $db = $this->getMock('MySqlMock', array('all'));
+    $db->expects($this->any())
+      ->method('all')
+      ->will($this->returnValue(array(array('timestamp'=>1,'album'=>1,'group'=>1,'user'=>1), array('timestamp'=>1,'album'=>1,'group'=>1,'user'=>1))));
+    $this->db->inject('db', $db);
+
+    $res = $this->db->getGroupsByUser('');
+    $this->assertFalse($res);
   }
 
   public function testGetGroupsByUserFailure()
   {
-    $this->markTestIncomplete('This test has not been implemented yet. #1247');
+    $db = $this->getMock('MySqlMock', array('all'));
+    $db->expects($this->any())
+      ->method('all')
+      ->will($this->returnValue(false));
+    $this->db->inject('db', $db);
+
+    $res = $this->db->getGroupsByUser($this->ownerEmail);
+    $this->assertFalse($res);
   }
 
   public function testGetPhotoSuccess()
@@ -989,3 +1029,4 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
     $this->assertFalse($res, 'The MySql adapter did not return FALSE for putUser');
   }
 }
+

@@ -629,6 +629,10 @@ class DatabaseMySql implements DatabaseInterface
     */
   public function getGroupsByUser($email)
   {
+    // gh-1425
+    if(empty($email))
+      return false;
+
     // if the user is the owner then return all active groups
     // else return groups this user is a member of
     if($email == $this->owner)
