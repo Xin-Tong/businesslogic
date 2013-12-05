@@ -643,10 +643,10 @@ class DatabaseMySql implements DatabaseInterface
     {
       $groups = $this->db->all($sql = "SELECT * 
         FROM `{$this->mySqlTablePrefix}group` 
-        WHERE `owner`=:owner AND 
-          `id` IN (SELECT `group` FROM `{$this->mySqlTablePrefix}groupMember` WHERE `email`=:email) AND 
+        WHERE `owner`=:owner1 AND 
+          `id` IN (SELECT `group` FROM `{$this->mySqlTablePrefix}groupMember` WHERE `owner`=:owner2 AND `email`=:email) AND 
           `active`=1", 
-          array(':owner' => $this->owner, ':email' => $email));
+          array(':owner1' => $this->owner, ':owner2' => $this->owner, ':email' => $email));
 
       foreach($groups as $k => $v)
         $groups[$k] = $this->normalizeGroup($v);
