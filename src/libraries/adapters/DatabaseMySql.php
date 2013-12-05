@@ -354,9 +354,13 @@ class DatabaseMySql implements DatabaseInterface
     $album = $this->db->one("SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND `id`=:id ",
       array(':id' => $id, ':owner' => $this->owner));
 
+    // we return false if we don't get an album or
+    // if the token was not validated AND
+    //  the user isn't an admin
+    //  there are no public photos AND
     if($album === false)
       return false;
-    else if(!$validatedToken && (empty($email) || $this->owner !== $email || $this->getActor() !== $email) && $album['countPublic'] == 0)
+    else if(!$validatedToken && !$this->isAdmin() && $album['countPublic'] == 0)
       return false;
 
     $album = $this->normalizeAlbum($album);
@@ -2237,7 +2241,8 @@ class DatabaseMySql implements DatabaseInterface
       return $this->isAdmin;
 
     $user = new User;
-    return $user->isAdmin();
+    $this->isAdmin = $user->isAdmin();
+    return $this->isAdmin;
   }
 
   /**
