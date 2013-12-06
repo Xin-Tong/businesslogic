@@ -303,14 +303,20 @@
         }
       });
     };
+    this.uploadSendNotification = function(args) {
+      OP.Util.makeRequest(TBX.format.sprintf('/photos/upload/%s/notify.json', args.token), {uploadedBy:args.by, count:args.photosUploaded.length}, function(){}, 'json', 'post');
+    };
     this.uploaderReady = function() {
       var form = $('form.upload');
       if(typeof OPU === 'object')
         OPU.init();
     };
     this.uploadTokenDialog = function(response) {
-      var tpl = response.result.tpl;
+      var tpl = response.result.tpl, ident = localStorage.getItem('uploadedBy');
       TBX.modal.open(tpl);
+      if(ident.length > 0) {
+        $('#modal input[name="identifier"]').val(ident);
+      }
     };
   }
   

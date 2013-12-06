@@ -407,6 +407,7 @@
           OP.Util.on('upload:uploader-ready', TBX.callbacks.uploaderReady);
           OP.Util.on('upload:token-dialog', TBX.callbacks.uploadTokenDialot);
           OP.Util.on('submit:photo-upload', TBX.callbacks.upload);
+          OP.Util.on('upload:send-notification', TBX.callbacks.uploadSendNotification);
           OP.Util.fire('upload:uploader-ready');
         },
         uploadBeta: function() {

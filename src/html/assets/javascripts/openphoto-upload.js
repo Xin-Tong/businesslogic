@@ -84,7 +84,7 @@ OPU = (function() {
                 }
               },
               UploadComplete: function(uploader, files) {
-                var i, file, failed = 0, total = 0;
+                var i, file, failed = 0, total = 0, token = $("form.upload input[name='token']", form).val();
                 for(i in files) {
                   if(files.hasOwnProperty(i)) {
                     total++;

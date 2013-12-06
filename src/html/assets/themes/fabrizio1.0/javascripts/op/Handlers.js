@@ -477,6 +477,7 @@
       if(ident.length > 0) {
         $tagField.val(TBX.format.sprintf('uploadedBy:%s', ident));
         OP.Util.config.uploadedBy = ident;
+        localStorage.setItem('uploadedBy', ident);
         TBX.modal.close();
       } else {
         $identField.closest('.control-group').addClass('error');
