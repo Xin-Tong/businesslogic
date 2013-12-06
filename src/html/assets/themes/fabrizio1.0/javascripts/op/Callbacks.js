@@ -304,7 +304,7 @@
       });
     };
     this.uploadSendNotification = function(args) {
-      OP.Util.makeRequest(TBX.format.sprintf('/photos/upload/%s/notify.json', args.token), {uploadedBy:args.by, count:args.photosUploaded.length}, function(){}, 'json', 'post');
+      OP.Util.makeRequest(TBX.format.sprintf('/photos/upload/%s/notify.json', args.token), {uploader:args.by, count:(args.photosUploaded.success.length+args.photosUploaded.duplicate.length)}, function(){}, 'json', 'post');
     };
     this.uploaderReady = function() {
       var form = $('form.upload');
