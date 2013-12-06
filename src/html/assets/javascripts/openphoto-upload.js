@@ -103,7 +103,7 @@ OPU = (function() {
               UploadFile: function() {
                 var uploader = $("#uploader").pluploadQueue(),
                     form = $('form.upload'),
-                    license = $("select[name='license'] :selected", form).val(),
+                    license = $("*[name='license']", form).val(),
                     permission = $("input[name='permission']:checked", form).val(),
                     albums = $("*[name='albums']", form).val(),
                     tags = $("input[name='tags']", form).val(),
