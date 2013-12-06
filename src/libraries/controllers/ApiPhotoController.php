@@ -640,7 +640,7 @@ class ApiPhotoController extends ApiBaseController
     $emailer = new Emailer;
     $emailer->setRecipients(array($tokenOwner));
     if(!empty($albumName))
-      $emailer->setSubject(sprintf('Photos uploaded to %s', $albumName));
+      $emailer->setSubject(sprintf('Photos have been uploaded to %s', $albumName));
     else
       $emailer->setSubject('New photos were uploaded for you');
 
