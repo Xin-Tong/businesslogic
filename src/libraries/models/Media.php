@@ -45,6 +45,9 @@ abstract class Media extends BaseModel
   {
     // make sure the defaults are set (this method sets to null if not already set)
     $attributes = $this->requireDefaults($attributes);
+    // we remove attributes which aren't valid
+    //  gh-1428 this needs to be done before the later methods that modify $attributes 
+    $attributes = $this->whitelistAttributes($attributes);
 
     // set all of the date and tag parameters
     $attributes = $this->setMediaSpecificAttributes($attributes, $localFile);
@@ -63,8 +66,6 @@ abstract class Media extends BaseModel
     $attributes['actor'] = $this->getActor();
     $attributes['size'] = intval(filesize($localFile)/1024);
 
-    // finally we remove attributes which aren't valid
-    $attributes = $this->whitelistAttributes($attributes);
     foreach($attributes as $key => $val)
       $attributes[$key] = $this->trim($val);
     return $attributes;
@@ -113,10 +114,15 @@ abstract class Media extends BaseModel
 
     $allowAutoRotate = isset($attributes['allowAutoRotate']) ? $attributes['allowAutoRotate'] : '1';
     $exif = $this->readExif($localFile, $allowAutoRotate);
-    foreach($exif as $key => $value)
+    
+    // gh-1428 map exif to whitelisted attributes
+    $exifMap = array('width' => 'width', 'height' => 'height', 'cameraMake' => 'exifCameraMake', 'cameraModel' => 'exifCameraModel',
+      'FNumber' => 'exifFNumber', 'exposureTime' => 'exifExposureTime', 'ISO' => 'exifISOSpeed', 'focalLength' => 'exifFocalLength', 'latitude' => 'latitude', 'longitude' => 'longitude');
+    foreach($exifMap as $paramName => $mapName)
     {
-      if(!isset($attributes[$key]) && !empty($value))
-        $attributes[$key] = $value;
+      // do not clobber if already in $attributes #1011
+      if(isset($exif[$paramName]) && !isset($attributes[$mapName]))
+        $attributes[$mapName] = $exif[$paramName];
     }
 
     return $attributes;
