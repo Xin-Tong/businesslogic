@@ -54,11 +54,6 @@ abstract class Media extends BaseModel
     $attributes = $this->setDateAttributes($attributes);
     $attributes = $this->setTagAttributes($attributes);
 
-    // check if the underlying file system needs to include any meta data into the db
-    $fsExtras = $this->fs->getMetaData($localFile);
-    if(!empty($fsExtras))
-      $attributes['extraFileSystem'] = $fsExtras;
-
     if(!isset($attributes['filenameOriginal']) || empty($attributes['filenameOriginal']))
       $attributes['filenameOriginal'] = $name;
 

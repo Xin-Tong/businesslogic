@@ -77,6 +77,11 @@ class Video extends Media
     $resp = $this->createAndStoreBaseAndOriginal($name, $localFile, $attributes['dateTaken']);
     $attributes = $this->setPathAttributes($attributes, $resp['paths']);
 
+    // check if the underlying file system needs to include any meta data into the db
+    $fsExtras = $this->fs->getMetaData($localFile);
+    if(!empty($fsExtras))
+      $attributes['extraFileSystem'] = $fsExtras;
+
     if ($resp['status'])
     {
       $this->logger->info("Video ({$id}) successfully stored on the file system");
