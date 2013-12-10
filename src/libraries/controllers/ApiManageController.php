@@ -11,8 +11,8 @@ class ApiManageController extends ApiBaseController
   {
     getAuthentication()->requireAuthentication();
     getAuthentication()->requireCrumb();
-    $host = $this->utility->getHost(true);
-    $configFile = $this->utility->getConfigFile(true);
+    $host = $this->utility->getHost();
+    $configFile = $this->utility->getConfigFile();
     $configString = getConfig()->getString($configFile);
     $configArray = parse_ini_string($configString, true);
     $originalAdmins = getConfig()->get('user')->admins;

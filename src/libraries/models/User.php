@@ -117,7 +117,7 @@ class User extends BaseModel
     $utilityObj = new Utility;
     $protocol = $utilityObj->getProtocol(false);
     if(empty($this->config->site->cdnPrefix))
-      $hostAndProtocol = sprintf('%s://%s', $protocol, $utilityObj->getHost(false));
+      $hostAndProtocol = sprintf('%s://%s', $protocol, $utilityObj->getHost());
     else
       $hostAndProtocol = sprintf('%s:%s', $protocol, $this->config->site->cdnPrefix);
 

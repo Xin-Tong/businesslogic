@@ -776,7 +776,7 @@ class Photo extends Media
     */
   private function getPhotoViewUrl($photo, $filterOpts=null)
   {
-    return sprintf('%s://%s%s', $this->utility->getProtocol(false), $this->utility->getHost(false), $this->url->photoView($photo['id'], $filterOpts, false));
+    return sprintf('%s://%s%s', $this->utility->getProtocol(false), $this->utility->getHost(), $this->url->photoView($photo['id'], $filterOpts, false));
   }
 
   /**

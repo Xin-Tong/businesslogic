@@ -83,7 +83,7 @@ class Utility
 
   public function getAbsoluteUrl($path = '/', $write = true)
   {
-    return $this->returnValue(sprintf('%s://%s%s', $this->getProtocol(false), $this->getHost(false), $path), $write);
+    return $this->returnValue(sprintf('%s://%s%s', $this->getProtocol(false), $this->getHost(), $path), $write);
   }
 
   public function getAttributeFromPath($name, $path = null)
@@ -110,9 +110,9 @@ class Utility
     return $configFile;
   }
 
-  public function getHost($new = false)
+  public function getHost($new = true)
   {
-    if($new === false)
+    if($new === true)
       return $_SERVER['HTTP_HOST'];
 
     $config = getConfig()->get();

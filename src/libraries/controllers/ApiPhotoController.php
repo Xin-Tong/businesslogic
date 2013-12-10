@@ -634,7 +634,7 @@ class ApiPhotoController extends ApiBaseController
 
     $utilityObj = new Utility;
     $albumName = $albumResp['result']['name'];
-    $albumUrl = sprintf('%s://%s/photos/album-%s/token-%s/list??sortBy=dateUploaded,desc', $utilityObj->getProtocol(false), $utilityObj->getHost(false), $albumId, $token);
+    $albumUrl = sprintf('%s://%s/photos/album-%s/token-%s/list??sortBy=dateUploaded,desc', $utilityObj->getProtocol(false), $utilityObj->getHost(), $albumId, $token);
     $tokenOwner = $tokenArr['actor'];
 
     $emailer = new Emailer;
