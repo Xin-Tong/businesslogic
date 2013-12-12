@@ -7,7 +7,7 @@
       Your upload token is <a href="/photos/upload/<?php $this->utility->safe($token['id']); ?>"><?php $this->utility->safe($token['id']); ?></a>. You can email, text or instant message this URL to anyone you'd like to upload photos into this album.
     </p>
     <p>
-    <button class="btn btn-brand copyToClipboard addSpinner" data-clipboard-text="<?php $this->utility->safe(sprintf('%s://%s/photos/upload/%s', $this->utility->getProtocol(false), $this->utility->getHost(false), $this->utility->safe($token['id'], false))); ?>">Copy URL to clipboard</button>
+    <button class="btn btn-brand copyToClipboard addSpinner" data-clipboard-text="<?php $this->utility->safe(sprintf('%s://%s/photos/upload/%s', $this->utility->getProtocol(false), $this->utility->getHost(), $this->utility->safe($token['id'], false))); ?>">Copy URL to clipboard</button>
     </p>
     <p>
       <i class="icon-info-sign"></i> 
