@@ -14,12 +14,10 @@
               <li class="batch separator-left"><a href="#" class="selectAll"><i class="icon-pushpin"></i> Select all</a></li>
               <li class="batch dropdown batch-meta"></li>
             <?php } ?>
-            <?php if($this->utility->isActiveTab('photos-album') && ($this->user->isAdmin()/* || $this->permission->canUpload($album)*/)) { ?>
+            <?php if($this->utility->isActiveTab('photos-album') && ($this->user->isAdmin() || $this->permission->canUpload($this->utility->getAttributeFromPath('album')))) { ?>
               <li class="separator-left">Album:</li>
               <li><a href="#" class="triggerShare"><i class="icon-share-alt triggerShare"></i> Share</a></li>
-              <?php if($this->user->isAdmin()) { ?>
-                <li><a href="#" class="albumInviteUploaders" data-id="<?php $this->utility->safe($this->utility->getAttributeFromPath('album')); ?>"><i class="icon-exchange"></i> Invite uploaders</a></li>
-              <?php } ?>
+              <li><a href="#" class="albumInviteUploaders" data-id="<?php $this->utility->safe($this->utility->getAttributeFromPath('album')); ?>"><i class="icon-exchange"></i> Invite uploaders</a></li>
             <?php } ?>
           <?php } elseif($this->utility->isActiveTab('upload') && $this->user->isAdmin()) {?>
             <li class="separator-left">Mobile apps </li>

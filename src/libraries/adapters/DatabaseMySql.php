@@ -349,7 +349,7 @@ class DatabaseMySql implements DatabaseInterface
     * @param string $email email of viewer to determine which albums they have access to
     * @return mixed Array on success, FALSE on failure
     */
-  public function getAlbum($id, $email, $validatedToken = false)
+  public function getAlbum($id, $email, $validatedPermission = false)
   {
     $album = $this->db->one("SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND `id`=:id ",
       array(':id' => $id, ':owner' => $this->owner));
@@ -360,7 +360,7 @@ class DatabaseMySql implements DatabaseInterface
     //  there are no public photos AND
     if($album === false)
       return false;
-    else if(!$validatedToken && !$this->isAdmin() && $album['countPublic'] == 0)
+    else if(!$validatedPermission && !$this->isAdmin() && $album['countPublic'] == 0)
       return false;
 
     $album = $this->normalizeAlbum($album);
@@ -973,7 +973,7 @@ class DatabaseMySql implements DatabaseInterface
         unset($tokens[$key]);
     }
 
-    return $tokens;
+    return array_values($tokens); // array_values re-keys the return
   }
 
   /**

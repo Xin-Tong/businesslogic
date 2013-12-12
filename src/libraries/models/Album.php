@@ -67,11 +67,11 @@ class Album extends BaseModel
     return $this->db->deleteAlbum($id);
   }
 
-  public function getAlbum($id, $includeElements = true, $email = null, $validatedToken = false)
+  public function getAlbum($id, $includeElements = true, $email = null, $validatedPermission = false)
   {
     if($email === null)
       $email = $this->user->getEmailAddress();
-    $album = $this->db->getAlbum($id, $email, $validatedToken);
+    $album = $this->db->getAlbum($id, $email, $validatedPermission);
     if(!$album)
       return false;
 

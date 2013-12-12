@@ -108,14 +108,19 @@ class ApiAlbumController extends ApiBaseController
 
     $album = $albumResp['result'];
 
-    $sharingTokenResp = $this->api->invoke(sprintf('/token/upload/%s/create.json', $albumId), EpiRoute::httpPost, array('_POST' => array('dateExpires' => strtotime('+2 weeks'))));
+    $sharingTokenResp = $this->api->invoke(sprintf('/token/upload/%s/create.json', $albumId), EpiRoute::httpPost, array('_POST' => array('dateExpires' => strtotime('+8 weeks'))));
 
     $token = null;
     if($sharingTokenResp['code'] === 200 || $sharingTokenResp['code'] === 201)
       $token = $sharingTokenResp['result'];
 
-    $template = $this->theme->get('partials/album-invite-uploaders.php', array('albumId' => $albumId, 'album' => $album, 'token' => $token));
-    return $this->success('Album start', array('markup' => $template));
+    if($token)
+    {
+      $template = $this->theme->get('partials/album-invite-uploaders.php', array('albumId' => $albumId, 'album' => $album, 'token' => $token));
+      return $this->success('Invite uploaders', array('markup' => $template));
+    }
+
+    return $this->error('Could not generate upload token', false);
   }
 
   public function list_()
@@ -292,10 +297,15 @@ class ApiAlbumController extends ApiBaseController
       $tokenArr = $shareTokenObj->get($_GET['token']);
       // make sure the token isn't empty and that it's ID matches this id
       if(!empty($tokenArr) && $id == $tokenArr['data'] && ($tokenArr['type'] == 'album' || $tokenArr['type'] == 'upload'))
-        $token = $_GET['token'];
+        $validatedPermission = true;
+    }
+    else
+    {
+      $permissionObj = new Permission;
+      $validatedPermission = $permissionObj->canUpload($id);
     }
 
-    $album = $this->album->getAlbum($id, $includeElements, null, $token);
+    $album = $this->album->getAlbum($id, $includeElements, null, $validatedPermission);
     if($album === false)
       return $this->error('Could not retrieve album', false);
 
