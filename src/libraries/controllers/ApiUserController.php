@@ -119,7 +119,7 @@ class ApiUserController extends ApiBaseController
 
     $albumSkipEmpty = $this->user->isAdmin() ? '0' : '1';
     $photos = $this->api->invoke('/photos/list.json', EpiRoute::httpGet, array('_GET' => array('pageSize' => 1)));
-    $albums = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('pageSize' => 1, 'skipEmpty' => $albumObj->skipEmptyValue())));
+    $albums = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('pageSize' => 0, 'skipEmpty' => $albumObj->skipEmptyValue())));
     $tags = $this->api->invoke('/tags/list.json', EpiRoute::httpGet, array('_GET' => array('pageSize' => 1)));
 
     $profile = array(
