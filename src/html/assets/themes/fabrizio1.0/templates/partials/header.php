@@ -39,6 +39,9 @@
             <?php if($this->permission->canUpload()) { ?>
               <li class="<?php if($this->utility->isActiveTab('upload')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->photosUpload(); ?>"><i class="icon-upload"></i> Upload</a></li>
             <?php } ?>
+            <?php if($this->user->isAdmin()) { ?>
+              <li class="<?php if($this->utility->isActiveTab('team')) { ?> active active-page-item<?php } ?>"><a href="<?php $this->url->team(); ?>"><i class="icon-group"></i> Team</a></li>
+            <?php } ?>
             <?php if($this->user->isLoggedIn()) { ?>
               <li class="visible-phone"><a href="/user/logout"><i class="icon-signout"></i> Sign Out</a></li>
             <?php } else { ?>

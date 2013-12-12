@@ -27,6 +27,12 @@ class Url
     return $utilityObj->returnValue('/albums/list', $write);
   }
 
+  public function team($write = true)
+  {
+    $utilityObj = new Utility;
+    return $utilityObj->returnValue('/manage/groups/list', $write);
+  }
+
   public function manage($write = true)
   {
     $utilityObj = new Utility;

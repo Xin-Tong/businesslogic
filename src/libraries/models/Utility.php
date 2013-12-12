@@ -302,6 +302,11 @@ class Utility
           return true;
         return false;
         break;
+      case 'team':
+        if(!empty($route) && (preg_match('#^/manage/group#', $route) || preg_match('#^/manage/administrators#', $route)))
+          return true;
+        return false;
+        break;
       case 'upload':
         if(!empty($route) && preg_match('#^/photos/upload#', $route))
           return true;
