@@ -135,6 +135,12 @@ class Album extends BaseModel
     return $this->db->postAlbumRemove($albumId, $type, $ids);
   }
 
+  public function skipEmptyValue()
+  {
+    $permissionObj = new Permission;
+    return $this->user->isAdmin() || count($permissionObj->allowedAlbums()) > 0 ? '0' : '1';
+  }
+
   public function update($id, $params)
   {
     $params = $this->whitelistParams($params);

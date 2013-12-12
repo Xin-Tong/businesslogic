@@ -14,6 +14,7 @@ class AlbumController extends BaseController
   public function list_()
   {
     $userObj = new User;
+    $albumObj = new Album;
     $page = 1;
     $pageSize = null;
     if(isset($_GET['pageSize']))
@@ -22,8 +23,7 @@ class AlbumController extends BaseController
       $page = (int)$_GET['page'];
 
     $permissionObj = new Permission;
-    $skipEmpty = $userObj->isAdmin() || count($permissionObj->allowedAlbums()) > 0 ? '0' : '1';
-    $albumsResp = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('page' => $page, 'pageSize' => $pageSize, 'skipEmpty' => $skipEmpty)));
+    $albumsResp = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('page' => $page, 'pageSize' => $pageSize, 'skipEmpty' => $albumObj->skipEmptyValue())));
     $albums = $albumsResp['result'];
     $this->plugin->setData('albums', $albums);
     $this->plugin->setData('page', 'albums');
