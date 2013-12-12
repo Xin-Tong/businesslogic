@@ -113,23 +113,6 @@ class MediaTest extends PHPUnit_Framework_TestCase
     $this->assertFalse($res);
   }
 
-  public function testPrepareAttributesWithFSMetaData()
-  {
-    $fs = $this->getMock('fs', array('getMetaData','getHost'));
-    $fs->expects($this->any())
-      ->method('getMetaData')
-      ->will($this->returnValue('fsmetadata'));
-    $fs->expects($this->any())
-      ->method('getHost')
-      ->will($this->returnValue('fshost'));
-    $this->media->inject('fs', $fs);
-    $this->media->inject('config', $this->config);
-
-    $attr = array('tags' => '1234');
-    $res = $this->media->prepareAttributes($attr, $this->photo, 'foo');
-    $this->assertEquals('fsmetadata', $res['extraFileSystem']);
-  }
-
   public function testPrepareAttributesWithOriginalFilenameEmpty()
   {
     $fs = $this->getMock('fs', array('getMetaData','getHost'));
