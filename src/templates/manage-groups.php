@@ -1,9 +1,9 @@
 <div class="row">
   <div class="span2">
     <ul class="nav nav-tabs nav-stacked affix sub-navigation">
+      <li class="<?php if($page === 'administrators') { ?>active <?php } ?>"><a href="/manage/administrators"><i class="icon-fixed-width icon-user-md"></i> Administrators</a></li>
       <li class="<?php if($page === 'group-list') { ?>active <?php } ?>"><a href="/manage/groups/list"><i class="icon-fixed-width icon-group"></i> Groups</a></li>
       <li class="<?php if($page === 'groups-collaborators') { ?>active <?php } ?>"><a href="/manage/groups/collaborators"><i class="icon-fixed-width icon-user"></i> Collaborators</a></li>
-      <li class="<?php if($page === 'administrators') { ?>active <?php } ?>"><a href="/manage/administrators"><i class="icon-fixed-width icon-user-md"></i> Administrators</a></li>
     </ul>
   </div>
   <div class="span10 sections">

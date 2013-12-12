@@ -30,7 +30,7 @@ class Url
   public function team($write = true)
   {
     $utilityObj = new Utility;
-    return $utilityObj->returnValue('/manage/groups/list', $write);
+    return $utilityObj->returnValue('/manage/administrators', $write);
   }
 
   public function manage($write = true)
