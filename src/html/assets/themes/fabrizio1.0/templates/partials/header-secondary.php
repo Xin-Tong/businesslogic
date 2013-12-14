@@ -16,8 +16,8 @@
             <?php } ?>
             <?php if($this->utility->isActiveTab('photos-album') && ($this->user->isAdmin() || $this->permission->canUpload($this->utility->getAttributeFromPath('album')))) { ?>
               <li class="separator-left">Album:</li>
-              <li><a href="#" class="triggerShare"><i class="icon-share-alt triggerShare"></i> Share</a></li>
-              <li><a href="#" class="albumInviteUploaders" data-id="<?php $this->utility->safe($this->utility->getAttributeFromPath('album')); ?>"><i class="icon-exchange"></i> Invite uploaders</a></li>
+              <li><a href="#" class="triggerShare" title="Share all the photos in this album"><i class="icon-share-alt triggerShare"></i> Share</a></li>
+              <li><a href="#" class="albumInviteUploaders" data-id="<?php $this->utility->safe($this->utility->getAttributeFromPath('album')); ?>" title="Get a Collect URL so others can send you photos"><i class="icon-link"></i> Collect URL</a></li>
             <?php } ?>
           <?php } elseif($this->utility->isActiveTab('upload') && $this->user->isAdmin()) {?>
             <li class="separator-left">Mobile apps </li>
