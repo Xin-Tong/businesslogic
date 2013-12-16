@@ -80,6 +80,16 @@ class Plugin extends BaseModel
       return null;
   }
 
+  public function getSingle($name)
+  {
+    foreach($this->pluginInstances as $instance)
+    {
+      if($instance->who() === $name)
+        return $instance;
+    }
+    return null;
+  }
+
   public function invoke($action, $params = null)
   {
     $output = '';
@@ -105,6 +115,13 @@ class Plugin extends BaseModel
 
   public function invokeSingle($invocationDef)
   {
+    // if a string is passed in for the class then we get the instance
+    if(gettype($invocationDef[0]) === 'string')
+      $invocationDef[0] = $this->getSingle($invocationDef[0]);
+
+    if(gettype($invocationDef[0]) !== 'object')
+      return;
+
     $output = (string)$invocationDef[0]->$invocationDef[1]($invocationDef[2]);
     if($output != '')
       echo $output;

@@ -79,4 +79,9 @@ class PluginBase extends BaseModel
     // require authentication for all route urls
     getAuthentication()->requireAuthentication();
   }
+
+  public function who()
+  {
+    return preg_replace('/Plugin$/', '', get_called_class());
+  }
 }
