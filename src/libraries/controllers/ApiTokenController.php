@@ -41,7 +41,9 @@ class ApiTokenController extends ApiController
     if($id === false)
       return $this->error('Could not create share token', false);
 
+    $utilityObj = new Utility;
     $tok = $this->token->get($id);
+    $tok['link'] = sprintf('%s://%s/photos/upload/%s', $utilityObj->getProtocol(false), $utilityObj->getHost(), $tok['id']);
     return $this->created('Successfully created share token', $tok);
   }
 
