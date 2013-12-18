@@ -27,6 +27,7 @@ class ApiTokenController extends ApiController
     }
     getAuthentication()->requireCrumb();
 
+    $utilityObj = new Utility;
     $params = $_POST;
     $params['type'] = $type;
     $params['data'] = $data;
@@ -35,7 +36,12 @@ class ApiTokenController extends ApiController
     //  we originally allowed multiple so we have to get this as an array
     $tok = $this->token->getByTarget($type, $data);
     if(count($tok) > 0)
-      return $this->success('Token exists, returning it', $tok[0]);
+    {
+      $tok = array_shift($tok); // this returns an array of tokens so we shift off the first one
+      if($type == 'upload')
+        $tok['link'] = sprintf('%s://%s/photos/upload/%s', $utilityObj->getProtocol(false), $utilityObj->getHost(), $tok['id']);
+      return $this->success('Token exists, returning it', $tok);
+    }
 
     $id = $this->token->create($params);
     if($id === false)
@@ -43,10 +49,7 @@ class ApiTokenController extends ApiController
 
     $tok = $this->token->get($id);
     if($type == 'upload')
-    {
-      $utilityObj = new Utility;
       $tok['link'] = sprintf('%s://%s/photos/upload/%s', $utilityObj->getProtocol(false), $utilityObj->getHost(), $tok['id']);
-    }
     return $this->created('Successfully created share token', $tok);
   }
 
