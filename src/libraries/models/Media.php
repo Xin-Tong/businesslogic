@@ -111,7 +111,7 @@ abstract class Media extends BaseModel
     $exif = $this->readExif($localFile, $allowAutoRotate);
     
     // gh-1428 map exif to whitelisted attributes
-    $exifMap = array('width' => 'width', 'height' => 'height', 'cameraMake' => 'exifCameraMake', 'cameraModel' => 'exifCameraModel',
+    $exifMap = array('width' => 'width', 'height' => 'height', 'dateTaken' => 'dateTaken', 'cameraMake' => 'exifCameraMake', 'cameraModel' => 'exifCameraModel',
       'FNumber' => 'exifFNumber', 'exposureTime' => 'exifExposureTime', 'ISO' => 'exifISOSpeed', 'focalLength' => 'exifFocalLength', 'latitude' => 'latitude', 'longitude' => 'longitude');
     foreach($exifMap as $paramName => $mapName)
     {
