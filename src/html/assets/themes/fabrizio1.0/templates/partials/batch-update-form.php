@@ -44,6 +44,7 @@
             <input type="checkbox" name="confirm2" value="remove"> I'm really sure 
           </label>
         </div>
+        <input type="hidden" name="album" value="<?php $this->utility->safe($album); ?>">
       <?php } elseif($action == 'albums') { ?>
         <h4>Add to or remove from which album? <em><small>(Found <?php echo count($albums); ?> albums)</small></em></h4>
         <div class="control-group">

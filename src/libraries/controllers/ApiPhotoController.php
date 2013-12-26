@@ -28,8 +28,17 @@ class ApiPhotoController extends ApiBaseController
     */
   public function delete($id)
   {
-    getAuthentication()->requireAuthentication();
+    $albumId = !isset($_POST['album']) ? false : $_POST['album'];
+    getAuthentication()->requireAuthentication(array(Permission::delete), $albumId);
     getAuthentication()->requireCrumb();
+
+    if($albumId)
+    {
+      $albumsForPhoto = $this->photo->getAlbumsForPhoto($id);
+      if(empty($albumsForPhoto) || !in_array($albumId, $albumsForPhoto))
+        return $this->error('Could not complete authentication check for photo', false);
+    }
+
     $status = $this->photo->delete($id);
     if($status)
     {
@@ -50,16 +59,19 @@ class ApiPhotoController extends ApiBaseController
     */
   public function deleteBatch()
   {
-    getAuthentication()->requireAuthentication();
+    $albumId = !isset($_POST['album']) ? false : $_POST['album'];
+    getAuthentication()->requireAuthentication(array(Permission::delete), $albumId);
     getAuthentication()->requireCrumb();
     if(!isset($_POST['ids']) || empty($_POST['ids']))
       return $this->error('This API requires an ids parameter.', false);
 
     $ids = (array)explode(',', $_POST['ids']);
+
     $params = $_POST;
     unset($params['ids']);
 
     $retval = true;
+    // IMPORTANT: authentication check for group members is in /photo/:id/delete.json
     foreach($ids as $id)
     {
       $response = $this->api->invoke("/{$this->apiVersion}/photo/{$id}/delete.json", EpiRoute::httpPost, array('_POST' => $params));
@@ -766,7 +778,8 @@ class ApiPhotoController extends ApiBaseController
     */
   public function updateBatchForm()
   {
-    getAuthentication()->requireAuthentication();
+    $albumId = !isset($_GET['album']) ? false : $_GET['album'];
+    getAuthentication()->requireAuthentication(array(Permission::delete), $albumId);
     $params = $_GET;
     if($params['action'] == 'albums')
     {
@@ -774,6 +787,8 @@ class ApiPhotoController extends ApiBaseController
       if($albumsResp['code'] === 200)
         $params['albums'] = $albumsResp['result'];
     }
+    if($albumId)
+      $params['album'] = $albumId;
     $markup = $this->theme->get('partials/batch-update-form.php', $params);
     return $this->success('Batch update form', array('markup' => $markup));
   }

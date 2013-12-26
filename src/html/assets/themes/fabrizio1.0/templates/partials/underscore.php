@@ -1,4 +1,7 @@
 <?php $isAdmin = $this->user->isAdmin(); ?>
+<?php $albumId = $this->utility->getAttributeFromPath('album'); ?>
+<?php $canDelete = false; ?>
+<?php if(!$isAdmin && $albumId) { $canDelete = $this->permission->canDelete($albumId); } ?>
 <script type="tmpl/underscore" id="photo-meta">
   <div class="photo-meta">
     <?php if($isAdmin) { ?>
@@ -13,6 +16,11 @@
       </ul>
     <?php } else { ?>
       <h4 class="title"><%- title || filenameOriginal %></h4>
+      <?php if($canDelete) { ?>
+        <ul class="info">
+          <li class="pull-right"><a href="#" title="Delete this photo"><i class="icon-trash photo delete edit" data-action="delete" data-album="<?php $this->utility->safe($albumId); ?>" data-ids="<%= id %>"></i></a></li>
+        </ul>
+      <?php } ?>
     <?php } ?>
   </div>
 </script>

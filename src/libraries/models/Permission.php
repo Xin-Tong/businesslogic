@@ -42,6 +42,25 @@ class Permission extends BaseModel
     return in_array($to, $permissions[self::create]);
   }
 
+  public function canDelete($to = null)
+  {
+    // owners/admins can upload
+    if($this->user->isAdmin())
+      return true;
+
+    $permissions = $this->get();
+    // first check if there are ANY upload permissions, if not then return false
+    if(!is_array($permissions[self::delete]))
+      return false;
+
+    // if not to specific album then return true
+    if($to === null)
+      return true;
+
+    // at the moment $to is a string
+    return in_array($to, $permissions[self::delete]);
+  }
+
   public function get($cache = true)
   {
     if($cache && $this->stored)

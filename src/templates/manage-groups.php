@@ -206,14 +206,14 @@
               </div>
               <div class="span2" data-album="<?php $this->utility->safe($albumId); ?>">
                 <h4 class="name"><?php $this->utility->safe($allAlbums[$albumId]['name']); ?></h4>
-                <!--<form action="/group/<?php $this->utility->safe($group['id']); ?>/update" class="groupUpdateHash">
-                  <div class="controls">
+                <form action="/group/<?php $this->utility->safe($group['id']); ?>/update" class="groupUpdateHash">
+                  <div class="controls offscreen">
                     <label class="checkbox inline">
                       <input type="checkbox" name="R" value="1" <?php if($group['album'] === true || (isset($group['album'][$albumId]['R']) && $group['album'][$albumId]['R'] === true)) { ?>checked="checked"<?php } ?>>
                       View this album
                     </label>
                   </div>
-                  <div class="controls">
+                  <div class="controls offscreen">
                     <label class="checkbox inline">
                       <input type="checkbox" name="C" value="1" <?php if($group['album'] === true || (isset($group['album'][$albumId]['C']) && $group['album'][$albumId]['C'] === true)) { ?>checked="checked"<?php } ?>>
                       Upload photos
@@ -229,7 +229,7 @@
                   <input type="hidden" name="crumb" value="<?php $this->utility->safe($crumb); ?>">
                   <input type="hidden" name="key" value="album">
                   <input type="hidden" name="albumId" value="<?php $this->utility->safe($albumId); ?>">
-                </form>-->
+                </form>
                 <form action="/group/<?php $this->utility->safe($group['id']); ?>/update" class="form-inline groupUpdateHash">
                   <small class="light">You can <a href="<?php $this->url->albumView($albumId); ?>">view</a> or <button class="btn-link">remove</button> this album</small>
                   <input type="hidden" name="crumb" value="<?php $this->utility->safe($crumb); ?>">
