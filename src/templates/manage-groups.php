@@ -222,7 +222,7 @@
                   <div class="controls">
                     <label class="checkbox inline">
                       <input type="checkbox" name="D" value="1" <?php if($group['album'] === true || (isset($group['album'][$albumId]['D']) && $group['album'][$albumId]['D'] === true)) { ?>checked="checked"<?php } ?>>
-                      Remove photos
+                      Delete photos
                     </label>
                   </div>
                   <div class="btn-toolbar"><button class="btn btn-brand addSpinner album-<?php $this->utility->safe($albumId); ?>">Save</button></div>
