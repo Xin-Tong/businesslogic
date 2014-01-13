@@ -400,7 +400,7 @@
         upload: function() {
           if(location.pathname.search(/^\/photos\/upload\/[a-z0-9]{10}/) === 0) {
             if($('form.upload').length === 1)
-              OP.Util.makeRequest('/photos/upload/token/dialog.json', {}, TBX.callbacks.uploadTokenDialog, 'json', 'get');
+              OP.Util.makeRequest('/photos/upload/token/dialog.json', {token:location.pathname.substr(-10)}, TBX.callbacks.uploadTokenDialog, 'json', 'get');
           }
           OP.Util.on('upload:complete-success', TBX.callbacks.uploadCompleteSuccess);
           OP.Util.on('upload:complete-failure', TBX.callbacks.uploadCompleteFailure);

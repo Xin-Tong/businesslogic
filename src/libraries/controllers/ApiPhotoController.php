@@ -670,7 +670,7 @@ class ApiPhotoController extends ApiBaseController
   public function uploadTokenDialog()
   {
     $template = sprintf('%s/upload-token-dialog.php', $this->config->paths->templates);
-    $body = $this->template->get($template);
+    $body = $this->template->get($template, array('token' => $_GET['token']));
     return $this->success('Photos uploaded successfully', array('tpl' => $body));
   }
 
