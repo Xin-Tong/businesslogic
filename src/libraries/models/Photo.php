@@ -892,7 +892,6 @@ class Photo extends Media
     if(!$exif)
       $exif = array();
 
-    $size = getimagesize($photo);
     // DateTimeOriginal is the right thing. If it is not there
     // use DateTime which might be the date the photo was modified
     $parsedDate = $this->parseExifDate($exif, 'DateTimeOriginal');
@@ -908,6 +907,11 @@ class Photo extends Media
       }
     }
     $dateTaken = $parsedDate;    
+
+    if(isset($exif['COMPUTED']) && isset($exif['COMPUTED']['Height']) && isset($exif['COMPUTED']['Width']))
+      $size = array($exif['COMPUTED']['Width'], $exif['COMPUTED']['Height']);
+    else
+      $size = getimagesize($photo);
 
     $width = $size[0];
     $height = $size[1];

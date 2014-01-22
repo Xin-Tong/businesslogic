@@ -33,6 +33,7 @@ class ImageImageMagick extends ImageAbstract
     {
       $this->filename = $filename;
       $this->image = new Imagick($filename);
+      $this->image->setImageFormat('jpg');
       return $this;
     }
     catch(ImagickException $e)
