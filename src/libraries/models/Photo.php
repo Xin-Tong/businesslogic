@@ -851,6 +851,15 @@ class Photo extends Media
     return false;
   }
 
+  private function convertBaseToJpegIfRaw($localFileCopy)
+  {
+    if(get_mime_type($localFileCopy) !== 'image/tiff')
+      return;
+
+    if(is_executable($this->config->modules->ufraw))
+      exec($sh = sprintf('%s %s --noexif --out-type=jpeg --output=%s --overwrite', $this->config->modules->ufraw, escapeshellarg($localFileCopy), escapeshellarg($localFileCopy)));
+  }
+
   private function createAndStoreBaseAndOriginal($name, $localFile, $dateTaken, $allowAutoRotate)
   {
     $paths = $this->generatePaths($name, $dateTaken);
@@ -860,6 +869,7 @@ class Photo extends Media
     $this->logger->info("Making a local copy of the uploaded image. {$localFile} to {$localFileCopy}");
     copy($localFile, $localFileCopy);
 
+    $this->convertBaseToJpegIfRaw($localFileCopy);
     $this->autoRotate($localFileCopy, $allowAutoRotate);
     
     $baseImage = $this->image->load($localFileCopy);
@@ -878,6 +888,26 @@ class Photo extends Media
     );
 
     return array('status' => $uploaded, 'paths' => $paths, 'localFileCopy' => $localFileCopy);;
+  }
+
+  /**
+    * Extracts the image size from a RAW file (identified by mimetype 'image/tiff'.
+    * Requires exiftool
+    * We have to do this because getimagesize(raw_file) returns the size of the 
+    *   embedded thumbnail.
+    * Returns [width, height]
+    *
+    * @param $photo Path to the photo.
+    * @return array
+    */
+  private function getImageSizeFromTiff($photo)
+  {
+    if(!is_executable($this->config->modules->exiftool))
+      return getimagesize($photo);
+
+    $cmd = sprintf('%s %s | egrep %s | awk %s', $this->config->modules->exiftool, escapeshellarg($photo), escapeshellarg('^Image Size +:'), escapeshellarg('{print $4}'));
+    $size = trim(exec($cmd));
+    return explode('x', $size);
   }
 
   /**
@@ -908,10 +938,10 @@ class Photo extends Media
     }
     $dateTaken = $parsedDate;    
 
-    if(isset($exif['COMPUTED']) && isset($exif['COMPUTED']['Height']) && isset($exif['COMPUTED']['Width']))
-      $size = array($exif['COMPUTED']['Width'], $exif['COMPUTED']['Height']);
-    else
+    if(get_mime_type($photo) !== 'image/tiff')
       $size = getimagesize($photo);
+    else
+      $size = $this->getImageSizeFromTiff($photo);
 
     $width = $size[0];
     $height = $size[1];
