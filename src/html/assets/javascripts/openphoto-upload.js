@@ -37,7 +37,7 @@ OPU = (function() {
 
             // Specify what files to browse for
             filters : [
-                {title : "Photos", extensions : "jpg,jpeg,gif,png"}/*,
+                {title : "Photos", extensions : "jpg,jpeg,gif,png,3fr,ari,arw,bay,crw,cr2,cap,dcs,dcr,dng,drf,eip,erf,fff,iiq,k25,kdc,mdc,mef,mos,mrw,nef,nrw,obm,orf,pef,ptx,pxn,r3d,raf,raw,rwl,rw2,rwz,sr2,srf,srw,x3f"}/*,
                 {title : "Videos", extensions : "mov,mp4,webm,ogg"}*/
             ],
 
