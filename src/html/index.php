@@ -7,6 +7,7 @@
  */
 
 require sprintf('%s/libraries/initialize.php', dirname(dirname(__FILE__)));
+getPlugin()->invoke('onInit');
 
 if($configObj->get('site')->maintenance == 1)
 {

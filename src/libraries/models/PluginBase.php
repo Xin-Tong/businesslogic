@@ -52,6 +52,8 @@ class PluginBase extends BaseModel
 
   public function onAction() { }
 
+  public function onInit() { }
+
   public function onView() { }
 
   public function onPhotoUpload() {}
