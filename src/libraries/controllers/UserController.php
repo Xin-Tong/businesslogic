@@ -28,7 +28,7 @@ class UserController extends BaseController
     if(isset($_GET['r']) && strpos($_GET['r'], '/') === 0)
       $redirect = $_GET['r'];
     $body = $this->theme->get('login.php', array('r' => $redirect));
-    $this->theme->display('template.php', array('body' => $body, 'page' => 'settings'));
+    $this->theme->display('template.php', array('body' => $body, 'page' => 'login'));
   }
 
   /**
