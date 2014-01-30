@@ -36,10 +36,14 @@ OPU = (function() {
             keep_droptext : window.innerWidth > 480,
 
             // Specify what files to browse for
-            filters : [
-                {title : "Photos", extensions : "jpg,jpeg,gif,png,3fr,ari,arw,bay,crw,cr2,cap,dcs,dcr,dng,drf,eip,erf,fff,iiq,k25,kdc,mdc,mef,mos,mrw,nef,nrw,obm,orf,pef,ptx,pxn,r3d,raf,raw,rwl,rw2,rwz,sr2,srf,srw,x3f"}/*,
-                {title : "Videos", extensions : "mov,mp4,webm,ogg"}*/
-            ],
+            filters : (function() {
+              var _ = [
+                {title : "Photos", extensions : "jpg,jpeg,gif,png,3fr,ari,arw,bay,crw,cr2,cap,dcs,dcr,dng,drf,eip,erf,fff,iiq,k25,kdc,mdc,mef,mos,mrw,nef,nrw,obm,orf,pef,ptx,pxn,r3d,raf,raw,rwl,rw2,rwz,sr2,srf,srw,x3f"},
+              ];
+              if(typeof OP.Util.config.enabledVideo !== "undefined" && OP.Util.config.enabledVideo)
+                _.push({title : "Videos", extensions : "mov,mp4,webm,ogg"});
+              return _;
+            })(),
 
             // Flash settings
             flash_swf_url : 'plupload.flash.swf',

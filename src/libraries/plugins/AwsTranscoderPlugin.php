@@ -44,6 +44,11 @@ class AwsTranscoderPlugin extends PluginBase
       'bucket' => '',
     );
   }
+
+  public function renderFooterJavascript()
+  {
+    return 'OP.Util.config.enabledVideo = true;';
+  }
   
   public function onVideoUploaded()
   {
@@ -95,8 +100,6 @@ class AwsTranscoderPlugin extends PluginBase
     catch (Exception $e) {
       $this->logger->crit("Unable to create Job: ". $e->getMessage());
     }
-
-    
   }
 
   public function defineApis()
