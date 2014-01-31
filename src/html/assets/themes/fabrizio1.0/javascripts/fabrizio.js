@@ -211,6 +211,7 @@
       attachEvents: function() {
         OP.Util.on('keyup:escape', TBX.handlers.click.batchHide);
         OP.Util.on('keyup:slash', TBX.callbacks.showKeyboardShortcuts);
+        OP.Util.on('video:load', TBX.handlers.custom.videoLoad);
         OP.Util.on('callback:remove-spinners', TBX.callbacks.removeSpinners);
         OP.Util.on('callback:replace-spinner', TBX.callbacks.replaceSpinner);
         OP.Util.on('preload:photos', TBX.handlers.custom.preloadPhotos);
