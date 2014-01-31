@@ -136,6 +136,7 @@
             ], // assets
             onComplete: function() {
               OP.Util.addEventMap(TBX.handlers);
+              TBX.init.preAttachEvents();
               TBX.notification.init();
               <?php if($note = $this->notification->get()) { ?>
                 TBX.notification.show(<?php printf('%s, %s, %s', json_encode($this->utility->safe($note['msg'], '<a>', false)), json_encode($this->utility->safe($note['type'], false)), json_encode($this->utility->safe($note['mode'], false))); ?>);
