@@ -42,7 +42,29 @@ class AwsTranscoderPlugin extends PluginBase
       'pipelineId' => '',
       'presets' => '',
       'bucket' => '',
+      'key' => ''
     );
+  }
+
+  public function renderFooter()
+  {
+    $utilityObj = new Utility;
+    $themeObj = getTheme();
+    $conf = $this->getConf();
+    $dataSwf = sprintf(
+      '%s%s', 
+      $utilityObj->safe($this->config->site->cdnPrefix, false),
+      getAssetPipeline(true)->setMode(AssetPipeline::combined)->
+        addSwf($themeObj->asset('javascript', 'video/flowplayer.swf', false))->
+        getUrl(AssetPipeline::swf, $this->config->site->mediaVersion, $this->config->site->mode === 'prod')
+    );
+    return <<<MKP
+    <div type="text/javascript" 
+            data-swf="{$dataSwf}"
+            data-key="{$conf->key}"
+            class="flow-player-script">
+    </div>
+MKP;
   }
 
   public function renderFooterJavascript()

@@ -53,18 +53,6 @@
       addJs('/assets/javascripts/openphoto-helper.js', false)->
       getUrl(AssetPipeline::js, $this->config->site->mediaVersion, $this->config->site->mode === 'prod'); ?>">
     </script>
-    <script type="text/javascript" 
-            src="<?php $this->utility->safe($this->config->site->cdnPrefix);?><?php echo getAssetPipeline(true)->setMode(AssetPipeline::combined)->
-      addJs($this->theme->asset('javascript', 'video/flowplayer.min.js', false))->
-      getUrl(AssetPipeline::js, $this->config->site->mediaVersion, $this->config->site->mode === 'prod'); ?>" 
-            data-swf="<?php $this->utility->safe($this->config->site->cdnPrefix);?><?php echo getAssetPipeline(true)->setMode(AssetPipeline::combined)->
-      addSwf($this->theme->asset('javascript', 'video/flowplayer.swf', false))->
-      getUrl(AssetPipeline::swf, $this->config->site->mediaVersion, $this->config->site->mode === 'prod'); ?>"
-            data-html5="<?php $this->utility->safe($this->config->site->cdnPrefix);?><?php echo getAssetPipeline(true)->setMode(AssetPipeline::combined)->
-      addJs($this->theme->asset('javascript', 'video/jwplayer.html5.js', false))->
-      getUrl(AssetPipeline::js, $this->config->site->mediaVersion, $this->config->site->mode === 'prod'); ?>"
-            class="flow-player-script">
-    </script>
 
     <script>
       OP.Util.config.ZeroClipboardSWF = '<?php $this->utility->safe($this->config->site->cdnPrefix);?><?php echo getAssetPipeline(true)->setMode(AssetPipeline::combined)->
@@ -92,6 +80,7 @@
                 addJs($this->theme->asset('javascript', 'bootstrap.min.js', false))->
                 addJs($this->theme->asset('javascript', 'jquery.color.js', false))->
                 addJs($this->theme->asset('javascript', 'x-editable/bootstrap-editable/js/bootstrap-editable.js', false))->
+                addJs($this->theme->asset('javascript', 'video/flowplayer.min.js', false))->
                 addJs($this->theme->asset('javascript', 'phpjs.js', false))->
                 addJs($this->theme->asset('javascript', 'ZeroClipboard.min.js', false))->
                 addJs($this->theme->asset('javascript', 'overrides.js', false))->
