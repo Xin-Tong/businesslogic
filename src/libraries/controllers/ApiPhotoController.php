@@ -402,6 +402,16 @@ class ApiPhotoController extends ApiBaseController
   }
 
   /**
+    * Search photos
+    *
+    * @return string standard json envelope
+    */
+  public function search()
+  {
+    return $this->api->invoke("/plugin/AwsSearch/search.json", EpiRoute::httpGet);
+  }
+
+  /**
     * Transform a photo.
     * Modifies a photo by rotating/BW/etc.
     *
