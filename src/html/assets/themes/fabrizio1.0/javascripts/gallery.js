@@ -221,7 +221,7 @@ var Gallery = (function($) {
       videoQueue[item.id] = {
         id: item.id,
         //file:'http://content.bitsontherun.com/videos/lWMJeVvV-364767.mp4',
-        file:item.videoSource,
+        file: item.videoSource,
         image: item[pathKey],
         width: item.vwidth,
         title: item.name,
@@ -231,6 +231,7 @@ var Gallery = (function($) {
     } else {
       var link = $('<a/>');
       link.attr('href', urlParts.pathname+qs);
+      link.attr('title', escape(item.title));
       link.attr("data-id", item.id);
       
       var img = $("<img/>");
@@ -238,7 +239,7 @@ var Gallery = (function($) {
       img.attr("src", item[pathKey]);
       //img.attr('class', 'photo-view-modal-click');
       img.attr('class', 'photoModal');
-      img.attr("title", item.title);
+      img.attr("alt", escape(item.title));
       img.css("width", "" + $nz(item[pathKey][1], defaultWidthValue) + "px");
       img.css("height", "" + $nz(item[pathKey][2], defaultHeightValue) + "px");
       img.css("margin-left", "" + (item.vx ? (-item.vx) : 0) + "px");
