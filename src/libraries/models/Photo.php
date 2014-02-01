@@ -609,6 +609,7 @@ class Photo extends Media
 
       // normally we delete the existing photos
       // in some cases we may have already done this (migration)
+      //  or by directly calling /photo/:id/source/delete.json which calls Photo::deleteSourceFiles(:id)
       // since we have not updated the database yet we are deleting the old paths and not the new ones
       //  new paths are stored in the db below by calling update() (see #1394 for misidentified bug)
       if(!isset($_POST['skipDeletes']) || empty($_POST['skipDeletes']))
@@ -623,7 +624,14 @@ class Photo extends Media
           return false;
         }
 
-        $delFilesResp = $this->fs->deletePhoto($photo);
+        // we make a copy of $photo here because if we are skipping replacing the original ($skipOriginal === '1')
+        //  we don't want to delete it else we'll be left with an orphan that doesn't have an original photo
+        // SEE https://github.com/photo/frontend/issues/1394#issuecomment-33843262
+        $photoDel = $photo;
+        if($skipOriginal === '1')
+          unset($photoDel['pathOriginal']);
+
+        $delFilesResp = $this->fs->deletePhoto($photoDel);
         if(!$delFilesResp)
         {
           $this->logger->info('Could not purge photo versions from the file system');
