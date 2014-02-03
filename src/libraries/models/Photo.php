@@ -861,11 +861,16 @@ class Photo extends Media
 
   private function convertBaseToJpegIfRaw($localFileCopy)
   {
-    if(get_mime_type($localFileCopy) !== 'image/tiff')
-      return;
+    $mimeType = get_mime_type($localFileCopy);
 
-    if(is_executable($this->config->modules->ufraw))
-      exec($sh = sprintf('%s %s --noexif --out-type=jpeg --output=%s --overwrite', $this->config->modules->ufraw, escapeshellarg($localFileCopy), escapeshellarg($localFileCopy)));
+    switch($mimeType)
+    {
+      case 'image/tiff':
+      case 'image/x-canon-cr2':
+        if(is_executable($this->config->modules->ufraw))
+          exec($sh = sprintf('%s %s --noexif --out-type=jpeg --output=%s --overwrite', $this->config->modules->ufraw, escapeshellarg($localFileCopy), escapeshellarg($localFileCopy)));
+        break;
+    }
   }
 
   private function createAndStoreBaseAndOriginal($name, $localFile, $dateTaken, $allowAutoRotate)

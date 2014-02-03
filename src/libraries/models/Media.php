@@ -25,6 +25,7 @@ abstract class Media extends BaseModel
       case 'image/pjpeg':
       case 'image/png':
       case 'image/tiff':
+      case 'image/x-canon-cr2':
         return self::typePhoto;
       case 'video/mpeg':
       case 'video/mp4':
