@@ -861,15 +861,10 @@ class Photo extends Media
 
   private function convertBaseToJpegIfRaw($localFileCopy)
   {
-    $mimeType = get_mime_type($localFileCopy);
-
-    switch($mimeType)
+    if($this->isRawPhoto($localFileCopy))
     {
-      case 'image/tiff':
-      case 'image/x-canon-cr2':
         if(is_executable($this->config->modules->ufraw))
           exec($sh = sprintf('%s %s --noexif --out-type=jpeg --output=%s --overwrite', $this->config->modules->ufraw, escapeshellarg($localFileCopy), escapeshellarg($localFileCopy)));
-        break;
     }
   }
 
@@ -913,7 +908,7 @@ class Photo extends Media
     * @param $photo Path to the photo.
     * @return array
     */
-  private function getImageSizeFromTiff($photo)
+  private function getImageSizeFromRaw($photo)
   {
     if(!is_executable($this->config->modules->exiftool))
       return getimagesize($photo);
@@ -951,10 +946,10 @@ class Photo extends Media
     }
     $dateTaken = $parsedDate;    
 
-    if(get_mime_type($photo) !== 'image/tiff')
-      $size = getimagesize($photo);
+    if($this->isRawPhoto($photo))
+      $size = $this->getImageSizeFromRaw($photo);
     else
-      $size = $this->getImageSizeFromTiff($photo);
+      $size = getimagesize($photo);
 
     $width = $size[0];
     $height = $size[1];

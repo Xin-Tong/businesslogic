@@ -27,14 +27,16 @@ class ApiMediaController extends ApiBaseController
     // determine localFile
     extract($this->parseMediaFromRequest());
     
-    // Get file mimetype
-    $mediaType = Media::getMediaType($localFile);
+    // Get file mimetype by instantiating a photo object
+    //  getMediaType is defined in parent abstract class Media
+    $photoObj = new Photo;
+    $mediaType = $photoObj->getMediaType($localFile);
 
     // Invoke type-specific
     switch ($mediaType) {
-      case 'photo':
+      case Media::typePhoto:
         return $this->api->invoke("/{$this->apiVersion}/photo/upload.json", EpiRoute::httpPost);
-      case 'video':
+      case Media::typeVideo:
         return $this->api->invoke("/{$this->apiVersion}/video/upload.json", EpiRoute::httpPost);
     }
     

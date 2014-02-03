@@ -17,6 +17,9 @@ abstract class Media extends BaseModel
 
   public function getMediaType($filename)
   {
+    if($this->isRawPhoto($filename))
+      return self::typePhoto;
+
     $type = get_mime_type($filename);
     switch ($type)
     {
@@ -24,8 +27,6 @@ abstract class Media extends BaseModel
       case 'image/jpeg':
       case 'image/pjpeg':
       case 'image/png':
-      case 'image/tiff':
-      case 'image/x-canon-cr2':
         return self::typePhoto;
       case 'video/mpeg':
       case 'video/mp4':
@@ -35,6 +36,20 @@ abstract class Media extends BaseModel
       case 'application/octet-stream':
         return self::typeVideo;
     }
+    return false;
+  }
+
+  public function isRawPhoto($filename)
+  {
+    $type = get_mime_type($filename);
+    switch($type)
+    {
+      case 'image/tiff':
+      case 'image/x-canon-cr2':
+      case 'image/x-canon-crw':
+        return true;
+    }
+
     return false;
   }
 
