@@ -32,6 +32,7 @@ abstract class Media extends BaseModel
       case 'video/ogg':
       case 'video/quicktime':
       case 'video/webm':
+      case 'application/octet-stream':
         return self::typeVideo;
     }
     return false;
