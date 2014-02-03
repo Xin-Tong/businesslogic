@@ -27,7 +27,7 @@ OPU = (function() {
             // General settings
             runtimes : 'html5',
             url : '/media/upload.json', // omit 409 since it's somewhat idempotent
-            max_file_size : '32mb',
+            max_file_size : '1024mb',
             file_data_name : 'photo',
             //chunk_size : '1mb',
             unique_names : true,
