@@ -3,11 +3,14 @@
     TBX = {};
   
   function Players() {
-    var players = [], $scriptEl = $('.flow-player-script'), swf = $scriptEl.attr('data-swf'), html5 = $scriptEl.attr('data-html5'), key = $scriptEl.attr('data-key');
+    var players = [], $scriptEl = $('.flow-player-script'), swfPath = $scriptEl.attr('data-swf'), html5 = $scriptEl.attr('data-html5'), keys = $scriptEl.attr('data-key');
 
     flowplayer.conf = {
+      adaptiveRatio: true,
       splash: true,
-      adaptiveRatio: true
+      swf: swfPath,
+      logo: '/assets/themes/fabrizio1.0/images/logo-white.png',
+      key: keys
     };
 
     this.load = function(id, params) {
@@ -17,10 +20,12 @@
       else
         $el = $('body>.container').find('.'+elementId);
 
+      if(typeof(flowplayer.conf.key) !== 'undefined') {
+        $el.attr('data-key', flowplayer.conf.key).addClass('no-volume').css('background-color', '#000'); 
+      }
+
       $el.flowplayer({
-        key: key,
         engine:'html5',
-        src:swf,
         // one video: a one-member playlist
         playlist: [
           [
@@ -29,14 +34,7 @@
         ],
         // TODO check if this ever works
         width:params.width,
-        height:params.height,
-        canvas: {backgroundColor:'#000000'},
-        plugins: {
-          controls: {
-            progressColor: '#000000',
-            bufferColor: '#000000'
-          }
-        }
+        height:params.height
       })
     };
   }
