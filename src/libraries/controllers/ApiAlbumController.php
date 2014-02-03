@@ -77,7 +77,13 @@ class ApiAlbumController extends ApiBaseController
     {
       $albumResp = $this->api->invoke("/{$this->apiVersion}/album/{$albumId}/view.json", EpiRoute::httpGet);
       if($albumResp['code'] == 200)
+      {
+        $this->plugin->setData('album', $albumResp['result']);
+        $this->plugin->setData('albumId', $albumId);
+        $this->plugin->invoke('onAlbumCreated');
+
         return $this->created('Album created', $albumResp['result']);
+      }
     }
     return $this->error('Could not add album', false);
   }

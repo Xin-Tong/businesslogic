@@ -56,6 +56,8 @@ class PluginBase extends BaseModel
 
   public function onView() { }
 
+  public function onAlbumCreated() {}
+
   public function onGroupCreated() {}
 
   public function onPhotoDeleted() {}

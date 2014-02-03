@@ -17,6 +17,14 @@ class CustomerIOPlugin extends PluginBase
     return array('id' => null, 'secret' => null);
   }
 
+  public function onAlbumCreated()
+  {
+    $eventTracker = new EventTracker;
+    $album = $this->plugin->getData('album');
+    $params = array('id' => $album['id']);
+    $eventTracker->track('album_create', $params);
+  }
+
   public function onGroupCreated()
   {
     $eventTracker = new EventTracker;
