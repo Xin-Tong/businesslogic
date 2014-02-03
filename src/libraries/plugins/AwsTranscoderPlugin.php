@@ -59,7 +59,7 @@ class AwsTranscoderPlugin extends PluginBase
         getUrl(AssetPipeline::swf, $this->config->site->mediaVersion, $this->config->site->mode === 'prod')
     );
     return <<<MKP
-    <div type="text/javascript" 
+    <div 
             data-swf="{$dataSwf}"
             data-key="{$conf->key}"
             class="flow-player-script">

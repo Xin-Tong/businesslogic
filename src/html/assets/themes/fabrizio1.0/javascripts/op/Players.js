@@ -3,7 +3,7 @@
     TBX = {};
   
   function Players() {
-    var players = [], $scriptEl = $('.flow-player-script'), swf = $scriptEl.attr('data-swf'), html5 = $scriptEl.attr('data-html5');
+    var players = [], $scriptEl = $('.flow-player-script'), swf = $scriptEl.attr('data-swf'), html5 = $scriptEl.attr('data-html5'), key = $scriptEl.attr('data-key');
 
     flowplayer.conf = {
       splash: true,
@@ -18,6 +18,7 @@
         $el = $('body>.container').find('.'+elementId);
 
       $el.flowplayer({
+        key: key,
         engine:'html5',
         src:swf,
         // one video: a one-member playlist
