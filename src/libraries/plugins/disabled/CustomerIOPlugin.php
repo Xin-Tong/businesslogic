@@ -35,6 +35,9 @@ class CustomerIOPlugin extends PluginBase
 
   public function onPhotoUploaded()
   {
+    if(isset($_REQUEST['skipCIO']))
+      return;
+
     $eventTracker = new EventTracker;
     $photo = $this->plugin->getData('photo');
     $params = array('id' => $photo['id'], 'permission' => $photo['permission'], 'size' => $photo['size']);
