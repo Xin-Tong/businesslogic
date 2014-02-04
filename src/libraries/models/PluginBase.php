@@ -62,6 +62,8 @@ class PluginBase extends BaseModel
 
   public function onPhotoDeleted() {}
 
+  public function onPhotoUpdated() {}
+
   public function onPhotoUpload() {}
 
   public function onPhotoUploaded() {}

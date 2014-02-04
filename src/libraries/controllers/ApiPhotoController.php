@@ -746,6 +746,10 @@ class ApiPhotoController extends ApiBaseController
       $post = array('elementId' => $photoUpdatedId, 'type' => 'photo-update', 'data' => $photo, 'permission' => isset($params['permission']) ? $params['permission'] : 0);
       $this->api->invoke("/{$this->apiVersion}/activity/create.json", EpiRoute::httpPost, array('_POST' => $post));
 
+      $this->plugin->setData('photo', $photo);
+      $this->plugin->setData('photoId', $photoUpdatedId);
+      $this->plugin->invoke('onPhotoUpdated');
+
       return $this->success("photo {$id} updated", $photo);
     }
 
