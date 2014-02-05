@@ -28,7 +28,6 @@ class AlbumController extends BaseController
     $photosResp = $this->api->invoke(sprintf('/photos/album-%s/list.json', $id), EpiRoute::httpGet, array('_GET' => $photosRespParams));
     $result = $photosResp['result'];
 
-    $status = true;
     if($photosResp['code'] !== 200 && empty($result))
     {
       $this->route->run('/error/500');
@@ -37,31 +36,33 @@ class AlbumController extends BaseController
 
     $directoryName = preg_replace('/\W/', ' ', $album['name']);
 
-    $zip = new ZipStream(sprintf('%s.zip', $directoryName));
+    $downloadList = array();
     foreach($result as $photo)
     {
-      $fp = $photoObj->getDownloadPointer($photo);
-      if(!$fp)
-      {
-        $status = false;
-        break;
-      }
-
       if(isset($photo['video']) && !empty($photo['video']))
         continue;
 
-      $zip->addLargeFile($fp, sprintf('%s/%s', $directoryName, $photo['filenameOriginal']));
-      fclose($fp);
+      $downloadList[] = $photo;
     }
 
-    // if we don't have a successful zip file to return we give a 404
-    if($status === false)
+    if(count($downloadList) === 0)
     {
-      $this->route->run('/error/404');
+      $this->route->run('/error/500');
       return;
     }
 
-    // everything worked so we return the file
+    $zip = new ZipStream(sprintf('%s.zip', $directoryName));
+    foreach($downloadList as $dl)
+    {
+
+      $fp = $photoObj->getDownloadPointer($dl);
+      if(!$fp)
+        continue;
+
+      $zip->addLargeFile($fp, sprintf('%s/%s', $directoryName, $dl['filenameOriginal']));
+      fclose($fp);
+    }
+    
     return $zip->finalize();
   }
 
