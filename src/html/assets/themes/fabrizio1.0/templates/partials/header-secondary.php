@@ -15,6 +15,7 @@
               <li class="batch dropdown batch-meta"></li>
               <?php if($this->utility->isActiveTab('photos-album')) { ?>
                 <li><a href="#" class="triggerShare"><i class="icon-share-alt triggerShare"></i> Share this album</a></li>
+                <li><a href="/album/<?php $this->utility->safe($this->utility->getAttributeFromPath('album')); ?>/download" title="Download this album"><i class="icon-download"></i> Download</a></li>
               <?php } ?>
             <?php } ?>
           <?php } elseif($this->utility->isActiveTab('upload')) {?>
