@@ -11,6 +11,60 @@ class AlbumController extends BaseController
     parent::__construct();
   }
 
+  public function download($id)
+  {
+    getAuthentication()->requireAuthentication();
+    $albumResp = $this->api->invoke(sprintf('/album/%s/view.json', $id));
+    $album = $albumResp['result'];
+    if($albumResp['code'] !== 200)
+    {
+      $this->route->run('/error/404');
+      return;
+    }
+
+    $photoObj = new Photo;
+    $photosRespParams = $_GET;
+    $photosRespParams['pageSize'] = 0;
+    $photosResp = $this->api->invoke(sprintf('/photos/album-%s/list.json', $id), EpiRoute::httpGet, array('_GET' => $photosRespParams));
+    $result = $photosResp['result'];
+
+    $status = true;
+    if($photosResp['code'] !== 200 && empty($result))
+    {
+      $this->route->run('/error/500');
+      return;
+    }
+
+    $directoryName = preg_replace('/\W/', ' ', $album['name']);
+
+    $zip = new ZipStream(sprintf('%s.zip', $directoryName));
+    foreach($result as $photo)
+    {
+      $fp = $photoObj->getDownloadPointer($photo);
+      if(!$fp)
+      {
+        $status = false;
+        break;
+      }
+
+      if(isset($photo['video']) && !empty($photo['video']))
+        continue;
+
+      $zip->addLargeFile($fp, sprintf('%s/%s', $directoryName, $photo['filenameOriginal']));
+      fclose($fp);
+    }
+
+    // if we don't have a successful zip file to return we give a 404
+    if($status === false)
+    {
+      $this->route->run('/error/404');
+      return;
+    }
+
+    // everything worked so we return the file
+    return $zip->finalize();
+  }
+
   public function list_()
   {
     $userObj = new User;

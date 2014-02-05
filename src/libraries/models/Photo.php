@@ -132,15 +132,13 @@ class Photo extends Media
 
   /**
     * Output the contents of the original photo
-    * Gets a file pointer from the adapter
-    *   which can be a local or remote file
     *
     * @param array $photo photo object as returned from the API (not the DB)
     * @return 
     */
   public function download($photo, $isAttachment = true)
   {
-    $fp = $this->fs->downloadPhoto($photo);
+    $this->getDownloadPointer($photo);
     if(!$fp)
       return false;
 
@@ -434,6 +432,19 @@ class Photo extends Media
   {
     return $this->db->getPhotoAlbums($id);
   }
+
+  /**
+    * Gets a file pointer from the adapter
+    *   which can be a local or remote file
+    *
+    * @param array $photo photo object as returned from the API (not the DB)
+    * @return 
+    */
+  public function getDownloadPointer($photo)
+  {
+    return $this->fs->downloadPhoto($photo);
+  }
+
 
   /**
     * Calculate the width and height of a scaled photo

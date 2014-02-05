@@ -49,7 +49,8 @@ $routeObj->post('/manage/password/reset/([a-z0-9]{32})', array('ManageController
  * Everything in []'s are optional
  * /album[s][/:id]/{action}
  */
-getRoute()->get('/albums/list', array('AlbumController', 'list_')); // retrieve activities (/albums/list)
+$routeObj->get('/albums/list', array('AlbumController', 'list_')); // retrieve activities (/albums/list)
+$routeObj->get('/album/([a-zA-Z0-9]+)/download', array('AlbumController', 'download')); // retrieve activities (/albums/list)
 
 /*
  * Photo endpoints
