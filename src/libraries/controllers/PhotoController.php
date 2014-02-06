@@ -157,7 +157,9 @@ class PhotoController extends BaseController
 
     $params = array('_GET' => array_merge($additionalParams, $getParams));
 
-    if($filterOpts)
+    if(isset($params['_GET']['q']))
+      $photos = $this->api->invoke("/photos/search.json", EpiRoute::httpGet, $params);
+    elseif($filterOpts)
       $photos = $this->api->invoke("/photos/{$filterOpts}/list.json", EpiRoute::httpGet, $params);
     else
       $photos = $this->api->invoke("/photos/list.json", EpiRoute::httpGet, $params);
