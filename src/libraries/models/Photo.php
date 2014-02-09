@@ -138,7 +138,7 @@ class Photo extends Media
     */
   public function download($photo, $isAttachment = true)
   {
-    $this->getDownloadPointer($photo);
+    $fp = $this->getDownloadPointer($photo);
     if(!$fp)
       return false;
 
