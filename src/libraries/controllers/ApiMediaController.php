@@ -19,10 +19,28 @@ class ApiMediaController extends ApiBaseController
    */
   public function upload()
   {
-    getAuthentication()->requireAuthentication();
-    getAuthentication()->requireCrumb();
     $httpObj = new Http;
     $attributes = $_REQUEST;
+
+    $albums = array();
+    if(isset($attributes['albums']) && !empty($attributes['albums']))
+      $albums = (array)explode(',', $attributes['albums']);
+    $token = null;
+    if(isset($attributes['token']) && !empty($attributes['token']))
+    {
+      $shareTokenObj = new ShareToken;
+      $tokenArr = $shareTokenObj->get($attributes['token']);
+      if(empty($tokenArr) || $tokenArr['type'] != 'upload')
+        return $this->forbidden('No permissions with the passed in token', false);
+      $attributes['albums'] = $tokenArr['data'];
+      $token = $tokenArr['id'];
+      $attributes['permission'] = '0';
+    }
+    else
+    {
+      getAuthentication()->requireAuthentication(array(Permission::create), $albums);
+      getAuthentication()->requireCrumb();
+    }
 
     // determine localFile
     extract($this->parseMediaFromRequest());
