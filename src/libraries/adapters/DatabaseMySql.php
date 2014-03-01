@@ -399,8 +399,7 @@ class DatabaseMySql implements DatabaseInterface
     $photos = $this->db->all("SELECT `pht`.* 
       FROM `{$this->mySqlTablePrefix}photo` AS `pht` INNER JOIN `{$this->mySqlTablePrefix}elementAlbum` AS `alb` ON `pht`.`id`=`alb`.`element`
       WHERE `pht`.`owner`=:owner AND `alb`.`owner`=:owner
-      AND `alb`.`album`=:album",
-      array(':owner' => $this->owner, ':album' => $id));
+      AND `alb`.`album`=:album", array(':owner' => $this->owner, ':album' => $id));
 
     if($photos === false)
       return false;
@@ -416,7 +415,7 @@ class DatabaseMySql implements DatabaseInterface
     * @param string $email email of viewer to determine which albums they have access to
     * @return mixed Array on success, FALSE on failure
     */
-  public function getAlbums($email = null, $limit = null, $offset = null)
+  public function getAlbums($email = null, $limit = null, $offset = null, $sort = null)
   {
     // TODO jmathai, confirm MySql is optimized for a high LIMIT
     if($limit === null)
@@ -427,13 +426,23 @@ class DatabaseMySql implements DatabaseInterface
     $limit = (int)$limit;
     $offset = (int)$offset;
 
+    $sortBy = '`name`';
+    if($sort !== null)
+    {
+      list($field, $direction) = each($sort);
+      if($field === 'dateLastPhotoAdded' && in_array(strtoupper($direction), array('DESC','ASC'))) {
+
+        $sortBy = "{$field} {$direction}";
+      }
+    }
+
     // if owner || admin then return all albums
     // else if email is provided then get public and albums in allowed groups
     // else return public albums
     if($this->isAdmin())
     {
-      $albums = $this->db->all("SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner ORDER BY `name` LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
-      $albumsCount = $this->db->one("SELECT COUNT(*) FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner ORDER BY `name`", array(':owner' => $this->owner));
+      $albums = $this->db->all("SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner ORDER BY {$sortBy} LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
+      $albumsCount = $this->db->one("SELECT COUNT(*) FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner ORDER BY {$sortBy}", array(':owner' => $this->owner));
     }
     elseif(!empty($email))
     {
@@ -444,13 +453,13 @@ class DatabaseMySql implements DatabaseInterface
       if(!empty($albumIds))
         $inClause = sprintf("`id` IN ('%s') OR ", implode("','", $albumIds));
       // get all albums with at least read permission
-      $albums = $this->db->all($sql = "SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND ({$inClause} `countPublic`>0) ORDER BY `name` LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
-      $albumsCount = $this->db->one("SELECT COUNT(*) FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND ({$inClause} `countPublic`>0) ORDER BY `name` LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
+      $albums = $this->db->all($sql = "SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND ({$inClause} `countPublic`>0) ORDER BY {$sortBy} LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
+      $albumsCount = $this->db->one("SELECT COUNT(*) FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND ({$inClause} `countPublic`>0) ORDER BY {$sortBy} LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
     }
     else
     {
-      $albums = $this->db->all("SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND `countPublic`>0 ORDER BY `name` LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
-      $albumsCount = $this->db->one("SELECT COUNT(*) FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND `countPublic`>0 ORDER BY `name` LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
+      $albums = $this->db->all($sql = "SELECT * FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND `countPublic`>0 ORDER BY {$sortBy} LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
+      $albumsCount = $this->db->one("SELECT COUNT(*) FROM `{$this->mySqlTablePrefix}album` WHERE `owner`=:owner AND `countPublic`>0 ORDER BY {$sortBy} LIMIT {$offset}, {$limit}", array(':owner' => $this->owner));
     }
 
     if($albums === false)
@@ -1225,7 +1234,7 @@ class DatabaseMySql implements DatabaseInterface
     $bindings[':id'] = $id;
     $bindings[':owner'] = $this->owner;
 
-    $result = $this->db->execute("UPDATE `{$this->mySqlTablePrefix}album` SET {$stmt} WHERE `id`=:id AND owner=:owner", $bindings);
+    $result = $this->db->execute("UPDATE `{$this->mySqlTablePrefix}album` SET {$stmt} WHERE `owner`=:owner AND `id`=:id", $bindings);
     return ($result !== false);
   }
 
@@ -1246,7 +1255,14 @@ class DatabaseMySql implements DatabaseInterface
         array(':owner' => $this->owner, ':type' => $type, ':elementId' => $elementId, ':albumId' => $albumId));
       $res = $res && $tmpRes !== 0;
     }
-    return $res !== false;
+    if($res !== false)
+    {
+      $this->db->execute("UPDATE `{$this->mySqlTablePrefix}album` SET `dateLastPhotoAdded`=:dateLastPhotoAdded WHERE `owner`=:owner AND `id`=:id",
+        array(':dateLastPhotoAdded' => time(), ':owner' => $this->owner, ':id' => $albumId)
+      );
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -1577,7 +1593,7 @@ class DatabaseMySql implements DatabaseInterface
   public function putAlbum($id, $params)
   {
     $stmt = $this->sqlInsertExplode($params);
-    $result = $this->db->execute($sql = "INSERT INTO `{$this->mySqlTablePrefix}album` (id,{$stmt['cols']}) VALUES (:id,{$stmt['vals']})", array(':id' => $id));
+    $result = $this->db->execute($sql = "INSERT INTO `{$this->mySqlTablePrefix}album` (id,{$stmt['cols']},dateLastPhotoAdded) VALUES (:id,{$stmt['vals']},:dateLastPhotoAdded)", array(':id' => $id, ':dateLastPhotoAdded' => time()));
     return ($result !== false);
   }
 

@@ -32,7 +32,7 @@ interface DatabaseInterface
   public function getAlbum($id, $email, $validatedToken = false);
   public function getAlbumByName($name, $email);
   public function getAlbumElements($id);
-  public function getAlbums($email, $limit = null, $offset = null);
+  public function getAlbums($email, $limit = null, $offset = null, $sort = null);
   public function getCredential($id);
   public function getCredentialByUserToken($userToken);
   public function getCredentials();

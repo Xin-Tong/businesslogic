@@ -78,7 +78,7 @@ class AlbumController extends BaseController
       $page = (int)$_GET['page'];
 
     $permissionObj = new Permission;
-    $albumsResp = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('page' => $page, 'pageSize' => $pageSize, 'skipEmpty' => $albumObj->skipEmptyValue())));
+    $albumsResp = $this->api->invoke('/albums/list.json', EpiRoute::httpGet, array('_GET' => array('page' => $page, 'pageSize' => $pageSize, 'sortBy' => 'dateLastPhotoAdded,desc', 'skipEmpty' => $albumObj->skipEmptyValue())));
     $albums = $albumsResp['result'];
     $this->plugin->setData('albums', $albums);
     $this->plugin->setData('page', 'albums');

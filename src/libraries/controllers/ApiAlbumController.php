@@ -139,8 +139,15 @@ class ApiAlbumController extends ApiBaseController
       $pageSize = (int)$_GET['pageSize'];
 
     $offset = ($pageSize * $page) - $pageSize;
+
+    $sort = null;
+    if(isset($_GET['sortBy']))
+    {
+      $sortParts = (array)explode(',', $_GET['sortBy']);
+      $sort = array($sortParts[0] => $sortParts[1]);
+    }
     // model passes on the email
-    $albums = $this->album->getAlbums($email, $pageSize, $offset);
+    $albums = $this->album->getAlbums($email, $pageSize, $offset, $sort);
     if($albums === false)
       return $this->error('Could not retrieve albums', false);
 
