@@ -252,7 +252,11 @@
             _this.load();
           },
           load: function() {
-            var _this = TBX.init.pages.albums; loc = location, async = typeof(arguments[0]) === 'undefined' ? true : arguments[0];
+            var _this = TBX.init.pages.albums; loc = location, async = typeof(arguments[0]) === 'undefined' ? true : arguments[0], concat = _this.pageLocation.search.length == 0 ? '?' : '&';
+
+            // since sort order for the API is static and onload changes the sort order for albums and gallery we need to mimic the controller behavior in JS
+            _this.pageLocation.search += concat + 'sortBy=dateLastPhotoAdded,desc';
+            console.log(_this.pageLocation);
             util.load(_this, async);
           },
           loadCb: function(response) {
