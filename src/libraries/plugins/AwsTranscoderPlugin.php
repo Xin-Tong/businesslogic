@@ -194,7 +194,7 @@ MKP;
         // then convert it to an access token
         // then get the oauth token including all keys
         $credentialObj = getCredential();
-        $consumerKey = $credentialObj->create('Transcoding Token');
+        $consumerKey = $credentialObj->create('Transcoding Token', array(Permission::read), $conf->actor);
         $credentialObj->convertToken($consumerKey, Credential::typeAccess);
         $oauthCredential = $credentialObj->getConsumer($consumerKey);
 

@@ -45,7 +45,7 @@ class Credential extends BaseModel
     * @param array $params Array of permissions
     * @return mixed Credential ID on success, false on failure
     */
-  public function create($name, $permissions = array('read'))
+  public function create($name, $permissions = array('read'), $actor = null)
   {
     if(!class_exists('OAuthProvider'))
     {
@@ -53,12 +53,14 @@ class Credential extends BaseModel
       return false;
     }
 
+    if($actor === null)
+      $actor = $this->getActor();
     $randomConsumer = bin2hex($this->provider->generateToken(25));
     $randomUser = bin2hex($this->provider->generateToken(20));
     $id = substr($randomConsumer, 0, 30);
     $params = array(
       'owner' => $this->owner,
-      'actor' => $this->getActor(),
+      'actor' => $actor,
       'name' => $name,
       'clientSecret' => substr($randomConsumer, -10),
       'userToken' => substr($randomUser, 0, 30),

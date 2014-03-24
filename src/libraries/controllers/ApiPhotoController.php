@@ -344,7 +344,7 @@ class ApiPhotoController extends ApiBaseController
     */
   public function replace($id)
   {
-    getAuthentication()->requireAuthentication();
+    getAuthentication()->requireAuthentication(array(Permission::update));
     getAuthentication()->requireCrumb();
 
     $attributes = $_REQUEST;
