@@ -184,6 +184,9 @@ MKP;
         list(,$output) = each($message->outputs);
 
         $params = array(
+          'title' => $photo['title'],
+          'tags' => implode(',', $photo['tags']),
+          'dateTaken' => $photo['dateTaken'],
           'skipOriginal' => '1',
           'photo' => str_replace('{count}', '00002', sprintf('http://%s/%s.jpg', $conf->bucket, $output->thumbnailPattern)),
           'videoStatus' => 'completed',
