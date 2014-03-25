@@ -42,7 +42,8 @@ class AwsTranscoderPlugin extends PluginBase
       'pipelineId' => '',
       'presets' => '',
       'bucket' => '',
-      'key' => ''
+      'key' => '',
+      'actor' => ''
     );
   }
 
