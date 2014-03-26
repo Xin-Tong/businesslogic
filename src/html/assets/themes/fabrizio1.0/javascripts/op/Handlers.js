@@ -256,6 +256,11 @@
       $('button', $form).prepend('<i class="icon-spinner icon-spin"></i> ');
       OP.Util.makeRequest('/album/create.json', params, TBX.callbacks.albumCreate, 'json', 'post');
     };
+    this.submit.albumDelete = function(ev) {
+      ev.preventDefault();
+      var $form = $(ev.target), id = $('input[name="id"]', $form).val(), model = op.data.store.Albums.get(id);
+      model.destroy({success: TBX.callbacks.albumDelete.bind(model), error: TBX.notification.display.generic.error});
+    };
     this.submit.batch = function(ev) {
       ev.preventDefault();
       var $form = $(ev.target), url = '/photos/update.json', formParams = $form.serializeArray(), batch = OP.Batch, params = {ids: batch.ids().join(','), crumb: TBX.crumb()};

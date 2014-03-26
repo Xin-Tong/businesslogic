@@ -37,6 +37,7 @@ $apiObj->post('/?v?[1-2]?/activity/create.json', array('ApiActivityController', 
  */
 $apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/cover/([a-zA-Z0-9]+)/update.json', array('ApiAlbumController', 'coverUpdate'), EpiApi::external); // update an album cover (/album/:albumId/cover/:photoId/update.json)
 $apiObj->post('/?v?[1-2]?/album/create.json', array('ApiAlbumController', 'create'), EpiApi::external); // create an album
+$apiObj->get('/?v?[1-2]?/album/([a-zA-Z0-9]+)/delete.json', array('ApiAlbumController', 'deleteForm'), EpiApi::external); // delete an album
 $apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/delete.json', array('ApiAlbumController', 'delete'), EpiApi::external); // delete an album
 $apiObj->get('/?v?[1-2]?/album/form.json', array('ApiAlbumController', 'form'), EpiApi::external); // form to create an album
 $apiObj->post('/?v?[1-2]?/album/([a-zA-Z0-9]+)/(photo)/(add|remove).json', array('ApiAlbumController', 'updateIndex'), EpiApi::external); // add or remove an element from an album

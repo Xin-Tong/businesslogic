@@ -99,6 +99,13 @@ class ApiAlbumController extends ApiBaseController
     return $this->error('Could not delete album', false);
   }
 
+  public function deleteForm($id)
+  {
+    $album = $this->album->getAlbum($id);
+    $template = $this->theme->get('partials/album-delete.php', array('album' => $album));
+    return $this->success('Album delete form', array('markup' => $template));
+  }
+
   public function form()
   {
     $template = $this->theme->get('partials/album-form.php');

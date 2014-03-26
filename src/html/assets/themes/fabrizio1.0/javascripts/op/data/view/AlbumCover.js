@@ -32,12 +32,8 @@
     },
     delete_: function(ev) {
       ev.preventDefault();
-      var $el = $(ev.target), id = $el.attr('data-id'), model = this.model, ask;
-      ask = prompt('Type DELETE if you\'d like to delete the album '+model.get('name') + '.');
-      if(ask === 'DELETE')
-        model.destroy({success: this.modelDestroyed.bind(model), error: TBX.notification.display.generic.error});
-      else
-        TBX.notification.show('Your request to delete ' + model.get('name') + ' was cancelled.', 'flash', 'error');
+      var $el = $(ev.currentTarget), id = $el.attr('data-id');
+      OP.Util.makeRequest('/album/'+id+'/delete.json', {crumb: TBX.crumb()}, TBX.callbacks.albumDeleteForm, 'json', 'get');
     },
     share: function(ev) {
       ev.preventDefault();
