@@ -45,12 +45,15 @@
         // stop listening
         this.model.off('change', this._bound('render'));
       }
+      var batch = OP.Batch;
       this.model = model;
+      this.model.set('pinned', batch.exists(model.get('id')));
       this.model.on('change', this._bound('render'));
       this.render();
     },
     events : {
       'click .permission.edit': 'permission',
+      'click .pin.edit': 'pin',
       'click .rotate': 'rotate',
       'click .share': 'share'
     },
@@ -59,6 +62,18 @@
       var el = $(ev.currentTarget), id = el.attr('data-id'), model = this.model;
       model.set('permission', model.get('permission') == 0 ? 1 : 0, {silent:false});
       model.save();
+    },
+    pin: function(ev) {
+      ev.preventDefault();
+      var el = $(ev.currentTarget), exists, id = el.attr('data-id'), model = this.model, batch = OP.Batch, count, photo = op.data.store.Photos.get(id).toJSON();
+      exists = batch.exists(id);
+      if(exists) // exists, we need to remove
+        batch.remove(id);
+      else // let's add it
+        batch.add(id, photo);
+
+      // set the model to !exists since we toggle the state
+      model.set('pinned', !exists, {silent:false});
     },
     rotate: function(ev) {
       ev.preventDefault();
@@ -141,7 +156,7 @@
     _initEvents : function(){
       this.$el.click( this._bound('onContainerClick') );
       this.$el.find('.photo').click( this._bound('nextIfImage'));
-      this.$el.find('.header .container .close-link').click( this._bound('hide'));
+      this.$el.find('.header .container .close-link').click( this._bound('close'));
       this.$el.find('.photo .nav .next').click( this._bound('next'));
       this.$el.find('.photo .nav .prev').click( this._bound('prev'));
       this.$el.find('.details .toggler').click( this._bound('toggleDetails'));
@@ -233,6 +248,11 @@
       this.$el.fadeIn('fast');
       this.adjustSize();
       return this;
+    },
+    
+    close : function(ev){
+      ev.preventDefault();
+      return this.hide();
     },
     
     hide : function(){

@@ -99,7 +99,7 @@
     <div class="header">
       <div class="container">
         <div class="logo"></div>
-        <a class="detail-link" href="">Detail View</a> <a href="#" class="detail-link close-link" title="Pressing ESC also closes this lightbox"><i class="icon-remove"></i></a>
+        <a class="detail detail-link" href="">Detail View</a> <a href="#" class="detail close-link" title="Pressing ESC also closes this lightbox"><i class="icon-remove"></i></a>
       </div>
     </div>
     <div class="bd">
@@ -135,6 +135,7 @@
           <a href="#" class="tags edit" title="Edit Tags"><i class="icon-tags"></i><span class="hide"><%- tags %></span></a>
           <a href="#" class="permission edit" title="Click to make this photo <%= permission == 0 ? 'public' : 'private' %>"><i class="icon-<%= permission == 0 ? 'lock' : 'unlock' %>"></i></a>
           <a href="#" class="rotate" title="Click to rotate this photo"><i class="icon-rotate-right"></i></a>
+          <a href="#" class="pin edit <% if(pinned) { %>pinned<% } %>" data-id="<%= id %>" title="Select for batch editing"><i class="icon-pushpin"></i></a>
           <span class="separator"></span>
           <a href="<%= pathDownload %>" title="Download the original high resolution photo"><i class="icon-download"></i></a>
           <a href="#" class="share" data-id="<%= id %>" title="Share this photo via email, Facebook or Twitter"><i class="icon-share-alt"></i></a>
