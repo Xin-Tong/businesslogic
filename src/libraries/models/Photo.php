@@ -84,8 +84,9 @@ class Photo extends Media
   }
 
   /**
-    * Delete a photo from the remote database and remote filesystem.
-    * This deletes the original photo and all versions.
+    * Do a soft delete of a photo
+    * Does not delete rows from DB or files from FS
+    * See purge
     *
     * @param string $id ID of the photo
     * @return boolean
@@ -98,9 +99,8 @@ class Photo extends Media
     if(!$photo)
       return false;
 
-    $fileStatus = $this->fs->deletePhoto($photo);
-    $dataStatus = $this->db->deletePhoto($photo);
-    return $fileStatus && $dataStatus;
+    $status = $this->db->deletePhoto($photo);
+    return $status;
   }
 
   /**
@@ -476,22 +476,39 @@ class Photo extends Media
     return array('width' => $width, 'height' => $height);
   }
 
-  /** 
-   * Parse the exif date
-   *
-   * @param $exif the exif block
-   * @param $key the exif key to get the date from
-   * @return the parsed date or false if not found
-   */
-  protected function parseExifDate($exif, $key)
+  /**
+    * Delete a photo from the remote database and remote filesystem.
+    * This deletes the original photo and all versions.
+    *
+    * @param string $id ID of the photo
+    * @return boolean
+    */
+  public function purge($id)
   {
-    // gh-1335
-    // rely on strtotime which handles the following formats which have been seen
-    // 2013/01/01 00:00:00
-    // 2013:01:01 00:00:00
-    if(array_key_exists($key, $exif))
-      return strtotime($exif[$key]);
-    return false;
+    // TODO, validation
+    $photo = $this->db->getPhoto($id);
+    if(!$photo)
+      return false;
+
+    $fileStatus = $this->fs->deletePhoto($photo);
+    $dataStatus = $this->db->purgePhoto($photo);
+    return $fileStatus && $dataStatus;
+  }
+
+  /**
+    * Restore a soft deleted photo
+    *
+    * @param string $id ID of the photo
+    * @return boolean
+    */
+  public function restore($id)
+  {
+    $photo = $this->db->getPhoto($id);
+    if(!$photo)
+      return false;
+
+    $status = $this->db->restorePhoto($photo);
+    return $status;
   }
 
   public function transform($id, $transformations)
@@ -927,6 +944,24 @@ class Photo extends Media
     $cmd = sprintf('%s %s | egrep %s | awk %s', $this->config->modules->exiftool, escapeshellarg($photo), escapeshellarg('^Image Size +:'), escapeshellarg('{print $4}'));
     $size = trim(exec($cmd));
     return explode('x', $size);
+  }
+
+  /** 
+   * Parse the exif date
+   *
+   * @param $exif the exif block
+   * @param $key the exif key to get the date from
+   * @return the parsed date or false if not found
+   */
+  protected function parseExifDate($exif, $key)
+  {
+    // gh-1335
+    // rely on strtotime which handles the following formats which have been seen
+    // 2013/01/01 00:00:00
+    // 2013:01:01 00:00:00
+    if(array_key_exists($key, $exif))
+      return strtotime($exif[$key]);
+    return false;
   }
 
   /**

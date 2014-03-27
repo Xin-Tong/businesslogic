@@ -111,7 +111,7 @@ class Group extends BaseModel
 
   public function undelete($id)
   {
-    return $this->db->undeleteGroup($id);
+    return $this->db->restoreGroup($id);
   }
 
   public function update($id, $params)

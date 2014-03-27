@@ -404,6 +404,27 @@ class ApiPhotoController extends ApiBaseController
   }
 
   /**
+    * Restore photo
+    *
+    * @return string standard json envelope
+    */
+  public function restore($id)
+  {
+    // only available to owners/admins
+    getAuthentication()->requireAuthentication();
+    getAuthentication()->requireCrumb();
+    
+    $status = $this->photo->restore($id);
+    if(!$status)
+      return $this->error(sprintf('Could not restore photo %s', $id), false);
+
+    $apiResp = $this->api->invoke(sprintf('/photo/%s/view.json', $id));
+
+    // even if API call fails we return success since the restore succeeded
+    return $this->success(sprintf('Photo %s restored', $id), $apiResp['result']);
+  }
+
+  /**
     * Search photos
     *
     * @return string standard json envelope
