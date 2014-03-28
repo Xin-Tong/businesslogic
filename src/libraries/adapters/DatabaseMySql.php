@@ -1990,48 +1990,98 @@ class DatabaseMySql implements DatabaseInterface
     $sql = substr($sql, 0, -1);
     $res = $this->db->execute($sql);
 
+    if($res === false)
+      return false;
+
     // update tag counts here instead of in a trigger #1342
-    $tagsForSql = array();
-    foreach($tags as $tag)
-      $tagsForSql[] = $this->_($tag);
-    $tagsForSql = sprintf("'%s'", implode("','", $tagsForSql));
-    // get public and private counts for all the tags
-    // private tag counts (omit permission column in WHERE clause to get all photos (private is everything))
-    $privateCounts = $this->db->all("SELECT et.`tag`, COUNT(*) AS _CNT
-      FROM `{$this->mySqlTablePrefix}photo` AS p INNER JOIN `{$this->mySqlTablePrefix}elementTag` AS et ON et.`element`=p.`id`
-      WHERE et.`owner`=:owner1 AND et.`tag` IN ({$tagsForSql}) AND p.`owner`=:owner2 AND p.`active`=1
-      GROUP BY et.`tag`", 
+    $this->adjustItemCounts($tags, 'tag');
+
+    return true;
+  }
+
+  // see #1342 for why we do this here instead of in a trigger
+  private function adjustItemCounts($items, $type)
+  {
+
+    if($type === 'tag')
+    {
+      $table = 'tag';
+      $tableMap = 'elementTag';
+      $column = 'tag';
+    }
+    elseif($type === 'album')
+    {
+      $table = 'album';
+      $tableMap = 'elementAlbum';
+      $column = 'album';
+    }
+    else
+    {
+      return false;
+    }
+
+    $itemsForSql = array();
+    foreach($items as $item)
+      $itemsForSql[] = $this->_($item);
+    $itemsForSql = sprintf("'%s'", implode("','", $itemsForSql));
+    // get public and private counts for all the items
+    // private item counts (omit permission column in WHERE clause to get all photos (private is everything))
+    $privateCounts = $this->db->all($sql = "SELECT ei.`{$column}`, COUNT(*) AS _CNT
+      FROM `{$this->mySqlTablePrefix}photo` AS p INNER JOIN `{$this->mySqlTablePrefix}{$tableMap}` AS ei ON ei.`element`=p.`id`
+      WHERE ei.`owner`=:owner1 AND ei.`{$column}` IN ({$itemsForSql}) AND p.`owner`=:owner2 AND p.`active`=1
+      GROUP BY ei.`{$table}`", 
       array(':owner1' => $this->owner, ':owner2' => $this->owner)
     );
-    // public tag counts (include permission column in WHERE clause to get only public photos)
-    $publicCounts = $this->db->all("SELECT et.`tag`, COUNT(*) AS _CNT
-      FROM `{$this->mySqlTablePrefix}photo` AS p INNER JOIN `{$this->mySqlTablePrefix}elementTag` AS et ON et.`element`=p.`id`
-      WHERE et.`owner`=:owner1 AND et.`tag` IN ({$tagsForSql}) AND p.`owner`=:owner2 AND p.`permission`=:permission AND p.`active`=1
-      GROUP BY et.`tag`", 
+
+    // public item counts (include permission column in WHERE clause to get only public photos)
+    $publicCounts = $this->db->all("SELECT ei.`{$column}`, COUNT(*) AS _CNT
+      FROM `{$this->mySqlTablePrefix}photo` AS p INNER JOIN `{$this->mySqlTablePrefix}{$tableMap}` AS ei ON ei.`element`=p.`id`
+      WHERE ei.`owner`=:owner1 AND ei.`{$column}` IN ({$itemsForSql}) AND p.`owner`=:owner2 AND p.`permission`=:permission AND p.`active`=1
+      GROUP BY ei.`{$column}`", 
       array(':owner1' => $this->owner, ':owner2' => $this->owner, ':permission' => '1')
     );
 
-    $tagCountSql = "UPDATE `{$this->mySqlTablePrefix}tag` ";
-    if(count($privateCounts) > 0)
+    // there's an edge case described by gh-1454
+    //  counts come out of sync when the only photo in a tag or album is deleted as the
+    //  above query returns NULL in the first column
+
+    // first we get all columns found in each query
+    $privateKeys = array_column($privateCounts, $column);
+    $privateDiff = array_diff($items, $privateKeys);
+    $publicKeys = array_column($publicCounts, $column);
+    $publicDiff = array_diff($items, $publicKeys);
+
+    if(!empty($privateDiff))
     {
-      $tagCountSql .= 'SET `countPrivate` = CASE `id` ';
-      foreach($privateCounts as $t)
-        $tagCountSql .= sprintf("WHEN '%s' THEN '%s' ", $this->_($t['tag']), $t['_CNT']);
-      $tagCountSql .= "ELSE `id` END WHERE `owner`=:owner AND `id` IN({$tagsForSql})";
-      $this->db->execute($tagCountSql, array(':owner' => $this->owner));
-    }
-    
-    $tagCountSql = "UPDATE `{$this->mySqlTablePrefix}tag` ";
-    if(count($publicCounts) > 0)
-    {
-      $tagCountSql .= 'SET `countPublic` = CASE `id` ';
-      foreach($publicCounts as $t)
-        $tagCountSql .= sprintf("WHEN '%s' THEN '%s' ", $this->_($t['tag']), $t['_CNT']);
-      $tagCountSql .= "ELSE `id` END WHERE `owner`=:owner AND `id` IN({$tagsForSql})";
-      $this->db->execute($tagCountSql, array(':owner' => $this->owner));
+      foreach($privateDiff as $pItem)
+        $privateCounts[] = array($column => $pItem, '_CNT' => 0);
     }
 
-    return $res !== false;
+    if(!empty($publicDiff))
+    {
+      foreach($publicDiff as $pItem)
+        $publicCounts[] = array($column => $pItem, '_CNT' => 0);
+    }
+
+    $itemCountSql = "UPDATE `{$this->mySqlTablePrefix}{$table}` ";
+    if(count($privateCounts) > 0)
+    {
+      $itemCountSql .= 'SET `countPrivate` = CASE `id` ';
+      foreach($privateCounts as $t)
+        $itemCountSql .= sprintf("WHEN '%s' THEN '%s' ", $this->_($t[$column]), $t['_CNT']);
+      $itemCountSql .= "ELSE `id` END WHERE `owner`=:owner AND `id` IN({$itemsForSql})";
+      $this->db->execute($itemCountSql, array(':owner' => $this->owner));
+    }
+    
+    $itemCountSql = "UPDATE `{$this->mySqlTablePrefix}{$table}` ";
+    if(count($publicCounts) > 0)
+    {
+      $itemCountSql .= 'SET `countPublic` = CASE `id` ';
+      foreach($publicCounts as $t)
+        $itemCountSql .= sprintf("WHEN '%s' THEN '%s' ", $this->_($t[$column]), $t['_CNT']);
+      $itemCountSql .= "ELSE `id` END WHERE `owner`=:owner AND `id` IN({$itemsForSql})";
+      $this->db->execute($itemCountSql, array(':owner' => $this->owner));
+    }
   }
 
   /**
@@ -2269,8 +2319,17 @@ class DatabaseMySql implements DatabaseInterface
     */
   private function deleteAlbumsFromElement($id)
   {
+    // first we have to get the albums for which we'll have to update counts
+    $photo = $this->getPhoto($id);
+    $albums = $photo['albums'];
+
     $res = $this->db->execute("DELETE FROM `{$this->mySqlTablePrefix}elementAlbum` WHERE `owner`=:owner AND `type`=:type AND `element`=:album", array(':owner' => $this->owner, ':type' => 'photo', ':album' => $id));
-    return $res !== false;
+
+    if($res === false)
+      return false;
+
+    $this->adjustItemCounts($albums, 'album');
+    return true;
   }
 
   /**
@@ -2296,8 +2355,17 @@ class DatabaseMySql implements DatabaseInterface
     */
   private function deleteTagsFromElement($id, $type)
   {
+    // first we have to get the tags for which we'll have to update counts
+    $photo = $this->getPhoto($id);
+    $tags = $photo['tags'];
+    
     $res = $this->db->execute("DELETE FROM `{$this->mySqlTablePrefix}elementTag` WHERE `owner`=:owner AND `type`=:type AND `element`=:element", array(':owner' => $this->owner, ':type' => $type, ':element' => $id));
-    return $res !== false;
+
+    if($res === false)
+      return false;
+
+    $this->adjustItemCounts($tags, 'tag');
+    return true;
   }
 
   private function isAdmin()
@@ -2770,8 +2838,16 @@ class DatabaseMySql implements DatabaseInterface
     */
   private function setActiveFieldForAlbumsFromElement($id, $value)
   {
+    $photo = $this->getPhoto($id);
+    $albums = $photo['albums'];
+
     $res = $this->db->execute("UPDATE `{$this->mySqlTablePrefix}elementAlbum` SET `active`=:active WHERE `owner`=:owner AND `type`=:type AND `element`=:album", array(':active' => $value, ':owner' => $this->owner, ':type' => 'photo', ':album' => $id));
-    return $res !== false;
+
+    if($res === false)
+      return false;
+
+    $this->adjustItemCounts($albums, 'album');
+    return true;
   }
 
   /**
@@ -2784,8 +2860,16 @@ class DatabaseMySql implements DatabaseInterface
     */
   private function setActiveFieldForTagsFromElement($id, $type, $value)
   {
+    $photo = $this->getPhoto($id);
+    $tags = $photo['tags'];
+
     $res = $this->db->execute("UPDATE `{$this->mySqlTablePrefix}elementTag` SET `active`=:active WHERE `owner`=:owner AND `type`=:type AND `element`=:element", array(':active' => $value, ':owner' => $this->owner, ':type' => $type, ':element' => $id));
-    return $res !== false;
+
+    if($res === false)
+      return false;
+
+    $this->adjustItemCounts($tags, 'tag');
+    return true;
   }
 
   /**
