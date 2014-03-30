@@ -215,7 +215,7 @@ var Gallery = (function($) {
 		overflow.css("width", ""+$nz(item.vwidth, defaultWidthValue)+"px");
 		overflow.css("height", ""+$nz(item[pathKey][1], defaultHeightValue)+"px");
 		overflow.css("overflow", "hidden");
-    if(typeof(item.video) !== 'undefined') {
+    if(typeof(item.video) !== 'undefined' && typeof(item.videoSource) !== 'undefined') {
       overflow.addClass("video");
       overflow.append('<div class="video-element video-element-'+item.id+' is-splash" style="height:'+configuration.thumbnailHeight+'px; background:url(\''+item[pathKey]+'\') 100%;"/>');
       videoQueue[item.id] = {
