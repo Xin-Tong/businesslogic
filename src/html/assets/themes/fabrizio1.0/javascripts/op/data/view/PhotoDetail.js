@@ -205,7 +205,6 @@
         op.Lightbox.getInstance().open(self.model.get('id'));
       });
       if(typeof(this.initialModel.get('video')) !== 'undefined' && this.initialModel.get('video') === true) {
-        OP.Util.fire('video:load', this.videoParams());
         this.showVideo();
       }
     },
@@ -225,9 +224,6 @@
           .attr('data-id', this.model.get('id'));
       } else {
         this.showVideo();
-        var $videoEl = $(this.el).find('.video .video-element');
-        $videoEl.css('height', this.model.get('photo870x870')[2]).css('background', 'url('+this.model.get('path870x870')+') 100%').addClass('video-element-'+this.model.get('id'));
-        OP.Util.fire('video:load', this.videoParams());
       }
     },
     
@@ -301,8 +297,11 @@
     },
 
     showVideo: function() {
-      $(this.el).find('.photo').hide();
-      $(this.el).find('.video').show();
+      var $el = $(this.el), $videoEl = $el.find('.video .video-element');
+      $el.find('.photo').hide();
+      $el.find('.video').show();
+      $videoEl.css('height', this.model.get('photo870x870')[2]).css('background', 'url('+this.model.get('path870x870')+') 100%').addClass('video-element-'+this.model.get('id'));
+      OP.Util.fire('video:load', this.videoParams());
     },
     
     addPreviousFromModel : function(model){
