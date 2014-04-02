@@ -13,9 +13,14 @@
           var changedParams = model.changedAttributes(), isRestore = false;
           for(i in changedParams) {
             if(changedParams.hasOwnProperty(i)) {
-              if(i == 'active')
+              if(i == 'active') {
                 isRestore = changedParams[i];
-              options.data[i] = changedParams[i];
+              } else if(i == 'dateTaken') {
+                console.log(i + ' = ' + changedParams[i]);
+                options.data[i] = phpjs.strtotime(changedParams[i]);
+              } else {
+                options.data[i] = changedParams[i];
+              }
             }
           }
 
