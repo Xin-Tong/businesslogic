@@ -2836,7 +2836,7 @@ class DatabaseMySql implements DatabaseInterface
     * @param string $id Element id
     * @return boolean
     */
-  private function setActiveFieldForAlbumsFromElement($id, $value)
+  protected function setActiveFieldForAlbumsFromElement($id, $value)
   {
     $photo = $this->getPhoto($id);
     $albums = $photo['albums'];
@@ -2858,7 +2858,7 @@ class DatabaseMySql implements DatabaseInterface
     * @param string $type Element type (photo or video)
     * @return boolean
     */
-  private function setActiveFieldForTagsFromElement($id, $type, $value)
+  protected function setActiveFieldForTagsFromElement($id, $type, $value)
   {
     $photo = $this->getPhoto($id);
     $tags = $photo['tags'];

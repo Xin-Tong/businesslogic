@@ -21,6 +21,16 @@ class DatabaseMySqlOverride extends DatabaseMySql
   {
     return 'test@example.com';
   }
+
+  protected function setActiveFieldForAlbumsFromElement($id, $value)
+  {
+    return true;
+  }
+
+  protected function setActiveFieldForTagsFromElement($id, $value)
+  {
+    return true;
+  }
 }
 
 class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
@@ -36,6 +46,7 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
     $config = arrayToObject($config);
     $params = array('db' => true);
     $this->db = new DatabaseMySqlOverride($config, $params);
+    $this->db->inject('isAdmin', true);
   }
 
   public function testDeleteActionSuccess()
@@ -148,6 +159,7 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
       ->method('one')
       ->will($this->returnValue(array('name' => 'unittest', 'countPublic' => '0')));
     $this->db->inject('db', $db);
+    $this->db->inject('isAdmin', false);
 
     $res = $this->db->getAlbum('foo', 'email');
     $this->assertFalse($res, 'The MySql adapter should return false when countPublic is 0 and non admin');
@@ -208,8 +220,6 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
 
   public function testGetAlbumsSuccess()
   {
-    $this->db->inject('isAdmin', true);
-
     $db = $this->getMock('MySqlMock', array('all','one'));
     $db->expects($this->any())
       ->method('all')
@@ -226,8 +236,6 @@ class DatabaseMySqlTest extends PHPUnit_Framework_TestCase
 
   public function testGetAlbumsWithExtrasSuccess()
   {
-    $this->db->inject('isAdmin', true);
-
     $db = $this->getMock('MySqlMock', array('all','one'));
     $db->expects($this->any())
       ->method('all')

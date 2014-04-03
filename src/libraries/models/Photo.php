@@ -580,10 +580,12 @@ class Photo extends Media
 
     // to preserve json columns we have to do complete writes
     $currentPhoto = $this->db->getPhoto($id);
-    unset($currentPhoto['id'], $currentPhoto['tags'], $currentPhoto['albums']);
+    unset($currentPhoto['id'], $currentPhoto['albums']);
+    $currentPhoto['tags'] = implode(',', $currentPhoto['tags']);
     $attributes = array_merge($currentPhoto, $attributes);
 
-    $attributes = $this->whitelistAttributes($attributes);
+    $attributes = $this->prepareAttributes($attributes, null, null);
+
     if(isset($attributes['tags']) && !empty($attributes['tags']))
       $attributes['tags'] = $tagObj->sanitizeTagsAsString($attributes['tags']);
 

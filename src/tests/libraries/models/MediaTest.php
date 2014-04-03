@@ -31,6 +31,11 @@ class MediaWrapper extends Media
     return parent::setIptcAttributes($attributes, $localFile, $mediaType);
   }
 
+  public function setDateTagsByAttributes($attributes)
+  {
+    return parent::setDateTagsByAttributes($attributes);
+  }
+
   public function setTagAttributes($attributes)
   {
     return parent::setTagAttributes($attributes);
@@ -54,6 +59,11 @@ class MediaWrapper extends Media
   public function whitelistAttributes($attributes)
   {
     return parent::whitelistAttributes($attributes);
+  }
+
+  public function isUploadedFile($localFile)
+  {
+    return true;
   }
 }
 
@@ -272,6 +282,14 @@ class MediaTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('zero,infinite,one,two', $res['tags'], 'tags should be merged');
   }
 
+  public function testSetDateTagsByAttributesAutoTagWithDateNo()
+  {
+    $this->config->photos->autoTagWithDate = 0;
+    $this->media->inject('config', $this->config);
+    $res = $this->media->setDateTagsByAttributes(array('dateTaken' => '1293304870'));
+    $this->assertFalse(isset($res['tags']));
+  }
+
   public function testSetTagAttributesAutoTagWithDateYes()
   {
     $this->media->inject('config', $this->config);
@@ -319,6 +337,36 @@ class MediaTest extends PHPUnit_Framework_TestCase
     $attrs = array('foo' => 'bar', 'pathOriginal' => 'invalid');
     $res = $this->media->setMediaSpecificAttributes($attrs, $this->video);
     $this->assertTrue($res['video'], $res);
+  }
+
+  public function testSetDateTagsByAttributesNoAutoTag()
+  {
+    $this->config->photos->autoTagWithDate = 0;
+    $this->media->inject('config', $this->config);
+
+    $attrs = array('foo' => 'bar', 'dateTaken' => '1293304870', 'tags' => 'one,two,three');
+    $res = $this->media->SetDateTagsByAttributes($attrs);
+    $this->assertEquals($attrs, $res, 'When autoTagWithDate is 0 then the attributes should not be altered when tags exist'); 
+
+
+    $attrs = array('foo' => 'bar', 'dateTaken' => '1293304870');
+    $res = $this->media->SetDateTagsByAttributes($attrs);
+    $this->assertEquals($attrs, $res, 'When autoTagWithDate is 0 then the attributes should not be altered even if no tags exist'); 
+  }
+
+  public function testSetDateTagsByAttributesYesAutoTag()
+  {
+    $this->media->inject('config', $this->config);
+
+    $attrs = array('foo' => 'bar', 'dateTaken' => '1293304870', 'tags' => 'one,two,three');
+    $res = $this->media->SetDateTagsByAttributes($attrs);
+    $attrs['tags'] .= ',December,2010';
+    $this->assertEquals($attrs, $res, 'Date tags should be appended to list'); 
+
+    $attrs = array('foo' => 'bar', 'dateTaken' => '1293304870');
+    $res = $this->media->SetDateTagsByAttributes($attrs);
+    $attrs['tags'] = 'December,2010';
+    $this->assertEquals($attrs, $res, 'When no tags exist the tags attribute should be created'); 
   }
 
   public function testWhitelistAttributes()
