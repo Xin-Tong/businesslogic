@@ -72,12 +72,14 @@ abstract class Media extends BaseModel
     $attributes = $this->setDateAttributes($attributes);
     $attributes = $this->setTagAttributes($attributes);
 
-    if(!isset($attributes['filenameOriginal']) || empty($attributes['filenameOriginal']))
+    if(!empty($name) && (!isset($attributes['filenameOriginal']) || empty($attributes['filenameOriginal'])))
       $attributes['filenameOriginal'] = $name;
 
     $attributes['owner'] = $this->owner;
     $attributes['actor'] = $this->getActor();
-    $attributes['size'] = intval(filesize($localFile)/1024);
+
+    if($this->isUploadedFile($localFile));
+      $attributes['size'] = intval(filesize($localFile)/1024);
 
     foreach($attributes as $key => $val)
       $attributes[$key] = $this->trim($val);
