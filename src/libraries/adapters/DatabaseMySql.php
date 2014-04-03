@@ -723,6 +723,8 @@ class DatabaseMySql implements DatabaseInterface
       $photo = $this->db->one("SELECT * FROM `{$this->mySqlTablePrefix}photo` WHERE owner=:owner AND `id`=:id AND `active`=1", array(':id' => $id, ':owner' => $this->owner));
     }
 
+    // TODO: gh-1455 get tags and albums from mapping table
+
     if(empty($photo))
       return false;
     return $this->normalizePhoto($photo);
