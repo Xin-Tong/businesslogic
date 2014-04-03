@@ -217,7 +217,7 @@ var Gallery = (function($) {
     } else {
       var link = $('<a/>');
       link.attr('href', urlParts.pathname+qs);
-      link.attr('title', escape(item.title));
+      link.attr('title', _.escape(item.title));
       link.attr("data-id", item.id);
       
       var img = $("<img/>");
@@ -225,7 +225,7 @@ var Gallery = (function($) {
       img.attr("src", item[pathKey]);
       //img.attr('class', 'photo-view-modal-click');
       img.attr('class', 'photoModal');
-      img.attr("alt", escape(item.title));
+      img.attr("alt", _.escape(item.title));
       img.css("width", "" + $nz(item[pathKey][1], defaultWidthValue) + "px");
       img.css("height", "" + $nz(item[pathKey][2], defaultHeightValue) + "px");
       img.css("margin-left", "" + (item.vx ? (-item.vx) : 0) + "px");
