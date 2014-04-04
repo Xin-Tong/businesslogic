@@ -126,7 +126,7 @@
     },
     
     _path: location.pathname,
-    _pathWithQuery: location.pathname+location.search,
+    _pathWithQuery: location.pathname+location.search, // see Handlers.js (click.photoModal) where this gets updated per gh-1434
     _filter: location.pathname.replace('/p/', '/').replace('/photos/', '/').replace('/list', ''),
     _query: function() { return location.search || ''; }, // gh-1421 we make this a function since location.search changes when viewing a photo 
     _visible: false,

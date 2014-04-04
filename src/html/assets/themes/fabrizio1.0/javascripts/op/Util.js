@@ -34,14 +34,14 @@
 
     this.getPathParam = function(name) {
       var re = new RegExp(TBX.format.sprintf('/%s-([^/]+)/', name)), result = re.exec(location.pathname);
-      if(result.length === 2)
+      if(result !== null && result.length === 2)
         return result[1];
       return null;
     };
 
     this.getQueryParam = function(name) {
       var re = new RegExp(TBX.format.sprintf('%s=([^&]+)', name)), result = re.exec(location.search);
-      if(result && result.length === 2)
+      if(result !== null && result && result.length === 2)
         return result[1];
       return null;
     };
