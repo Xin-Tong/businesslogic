@@ -82,6 +82,9 @@ class ApiMediaController extends ApiBaseController
       // else we base64_decode it
       if(preg_match('#https?://#', $_POST['photo']))
       {
+        // override the local filename so we know how to manage it
+        // see gh-1465 for details
+        $localFile = tempnam($this->config->paths->temp, 'opme-via-url');
         $fp = fopen($localFile, 'w');
         $ch = curl_init($_POST['photo']);
         curl_setopt($ch, CURLOPT_FILE, $fp);
