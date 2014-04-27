@@ -1507,6 +1507,9 @@ class DatabaseMySql implements DatabaseInterface
     */
   public function postUser($params)
   {
+    if(!isset($params['password']) && !isset($params['extra']))
+      return false; // nothing was updated
+    
     $id = $this->owner;
     if(isset($params['id']))
     {
@@ -1515,22 +1518,22 @@ class DatabaseMySql implements DatabaseInterface
     }
 
     $params = $this->prepareUser($params);
+    $dbParams = array(':id' => $id);
+    $sql = "UPDATE `{$this->mySqlTablePrefix}user` SET ";
+    
     if(isset($params['password']) && !empty($params['password']))
     {
-      $sql = "UPDATE `{$this->mySqlTablePrefix}user` SET `password`=:password,`extra`=:extra WHERE `id`=:id";
-      $params = array(':id' => $id, ':password' => $params['password'], ':extra' => $params['extra']);
+      $sql .= '`password`=:password,';
+      $dbParams[':password'] = $params['password'];
     }
-    elseif(isset($params['extra']) && !empty($params['extra']))
+    if(isset($params['extra']) && !empty($params['extra']))
     {
-      $sql = "UPDATE `{$this->mySqlTablePrefix}user` SET `extra`=:extra WHERE `id`=:id";
-      $params = array(':id' => $id, ':extra' => $params['extra']);
+      $sql .= '`extra`=:extra,';
+      $dbParams[':extra'] = $params['extra'];
     }
-    else
-    {
-      return true; // noop
-    }
+    $sql = sprintf('%s WHERE `id`=:id', substr($sql, -1));
 
-    $res = $this->db->execute($sql, $params); 
+    $res = $this->db->execute($sql, $dbParams); 
     if($res == 1)
     {
       // clear the cache
