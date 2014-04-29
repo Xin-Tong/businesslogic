@@ -1127,8 +1127,9 @@ class DatabaseMySql implements DatabaseInterface
         // Backwards compatibility: rehash old password
         $userObj = new User;
         if ($res['password'] == $userObj->encryptPasswordDeprecated($password)) {
-          $res['password'] = $userObj->encryptPassword($password);
-          $this->postUser($res);
+          // gh-1472 pass extra in else it gets clobbered
+          $newParams = array_merge($this->normalizeUser($res), array('password' => $userObj->encryptPassword($password)));
+          $this->postUser($newParams);
           return $this->normalizeUser($res);
         }
       }
