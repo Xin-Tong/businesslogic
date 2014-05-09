@@ -260,6 +260,74 @@ class Photo extends BaseModel
     return false;
   }
 
+//Xin 
+public function generateNopush($id, $hash, $width, $height, $options = null)
+  {
+    if(!$this->isValidHash($hash, $id, $width, $height, $options))
+      return false;
+
+    $photo = $this->db->getPhoto($id);
+    if(!$photo)
+    {
+      $this->logger->crit(sprintf('Could not get photo from db in generate method (%s)', $id));
+      return false;
+    }
+
+    $filename = $this->fs->getPhoto($photo['pathBase']);
+    if(!$filename)
+    {
+      $this->logger->crit(sprintf('Could not get photo from fs in generate method %s', $photo['pathBase']));
+      return false;
+    }
+
+    try
+    {
+      $this->image->load($filename);
+    }
+    catch(OPInvalidImageException $e)
+    {
+      $this->logger->crit('Could not get image from image adapter in generate method', $e);
+      return false;
+    }
+
+    $maintainAspectRatio = true;
+    if(!empty($options))
+    {
+      $optionsArray = (array)explode('x', $options);
+      foreach($optionsArray as $option)
+      {
+        switch($option)
+        {
+          case 'BW':
+            $this->image->greyscale();
+            break;
+          case 'CR':
+            $maintainAspectRatio = false;
+            break;
+        }
+      }
+    }
+
+    $this->image->scale($width, $height, $maintainAspectRatio);
+    $this->image->write($filename);
+    $customPath = $this->generateCustomUrl($photo['pathBase'], $width, $height, $options);
+    $key = $this->generateCustomKey($width, $height, $options);
+   /*part of push function 
+    $resFs = $this->fs->putPhoto($filename, $customPath, $photo['dateTaken']);
+    $resDb = $this->db->postPhoto($id, array($key => $customPath));
+    if($resFs && $resDb)
+      return $filename;
+  
+    return false;
+*/
+//Xin:build an array named info to return $customPath, $photo['dateTakenen'], $key and $filename
+
+    $dataForPush = array($customPath, $photo['dateTaken'],$key, $filename);
+    return $dataForPush;
+ 
+  }
+
+
   /**
     * Does the opposite of $this->generateFragment.
     * Given a string fragment this will return it's parts as an array.
@@ -298,7 +366,7 @@ class Photo extends BaseModel
       if(strlen($v) == 0)
         unset($args[$k]);
     }
-    $args[] = $this->config->secrets->secret;
+    $args[] = $this->config->secrets->secret;  //Xin
     return substr(sha1(implode('.', $args)), 0, 5);
   }
 
@@ -602,6 +670,8 @@ class Photo extends BaseModel
     $delVersionsResp = $this->db->deletePhotoVersions($photo);
     if(!$delVersionsResp)
       return false;
+    
+    return true;
   }
 
   /**
@@ -798,7 +868,9 @@ class Photo extends BaseModel
     */
   public function upload($localFile, $name, $attributes = array())
   {
-    // check if file type is valid
+  
+  //if the input file type is jpg/jpeg/gif/png then return true otherwise return false.
+  // check if file type is valid
     if(!$this->utility->isValidMimeType($localFile))
     {
       $this->logger->warn(sprintf('Invalid mime type for %s', $localFile));
@@ -825,6 +897,7 @@ class Photo extends BaseModel
     else
       $dateTaken = time();
 
+   //copy and resize the base image then give original pic and resized pic to fs. return status, path, the copy 
     $resp = $this->createAndStoreBaseAndOriginal($name, $localFile, $dateTaken, $allowAutoRotate);
     $paths = $resp['paths'];
 
@@ -935,156 +1008,6 @@ class Photo extends BaseModel
     $this->logger->warn("Photo ({$id}) could NOT be stored to the file system");
     return false;
   }
-
-
-/*Modified by Xin
- seperate resize function out from function upload
-*/
-
-  public function resize($localFile, $name, $attributes = array())
-  {
-    // check if file type is valid: if the input file type is jpg/jpeg/gif/png then return true otherwise return false
-    if(!$this->utility->isValidMimeType($localFile))
-    {
-      $this->logger->warn(sprintf('Invalid mime type for %s', $localFile));
-      return false;
-    }
-   //get the ID number
-    $id = $this->user->getNextId('photo');
-    if($id === false)
-    {
-      $this->logger->crit('Could not fetch next photo ID');
-      return false;
-    }
-    $tagObj = new Tag;
-    $filenameOriginal = $name;
-   
-     //check if allowing autorotate and get the exif and iptc info
-    $allowAutoRotate = isset($attributes['allowAutoRotate']) ? $attributes['allowAutoRotate'] : '1';
-    $exif = $this->readExif($localFile, $allowAutoRotate);
-    $iptc = $this->readIptc($localFile);
-   
-     //set the picture taken date
-    if(isset($attributes['dateTaken']) && !empty($attributes['dateTaken']))
-      $dateTaken = $attributes['dateTaken'];
-    elseif(isset($exif['dateTaken']))
-      $dateTaken = $exif['dateTaken'];
-    else
-      $dateTaken = time();
-    //
-    $resp = $this->createAndStoreBaseAndOriginal($name, $localFile, $dateTaken, $allowAutoRotate);
-    $paths = $resp['paths'];
-
-    $attributes = $this->whitelistParams($attributes);
-
-    if($resp['status'])
-    {
-      $this->logger->info("Photo ({$id}) successfully stored on the file system");
-      $fsExtras = $this->fs->getMetaData($localFile);
-      if(!empty($fsExtras))
-        $attributes['extraFileSystem'] = $fsExtras;
-      $defaults = array('title', 'description', 'tags', 'latitude', 'longitude');
-      foreach($iptc as $iptckey => $iptcval)
-      {
-        if(empty($iptcval))
-          continue;
-
-        if($iptckey == 'tags')
-          $attributes['tags'] = implode(',', array_unique(array_merge((array)explode(',', $attributes['tags']), $iptcval)));
-        else if(!isset($attributes[$iptckey])) // do not clobber if already in $attributes #1011
-          $attributes[$iptckey] = $iptcval;
-      }
-
-      foreach($defaults as $default)
-      {
-        if(!isset($attributes[$default]))
-          $attributes[$default] = null;
-      }
-
-      $exifParams = array('width' => 'width', 'height' => 'height', 'cameraMake' => 'exifCameraMake', 'cameraModel' => 'exifCameraModel', 
-        'FNumber' => 'exifFNumber', 'exposureTime' => 'exifExposureTime', 'ISO' => 'exifISOSpeed', 'focalLength' => 'exifFocalLength', 'latitude' => 'latitude', 'longitude' => 'longitude');
-      foreach($exifParams as $paramName => $mapName)
-      {
-        // do not clobber if already in $attributes #1011
-        if(isset($exif[$paramName]) && !isset($attributes[$mapName]))
-          $attributes[$mapName] = $exif[$paramName];
-      }
-
-      if(isset($attributes['dateUploaded']) && !empty($attributes['dateUploaded']))
-        $dateUploaded = $attributes['dateUploaded'];
-      else
-        $dateUploaded = time();
-
-      if($this->config->photos->autoTagWithDate == 1)
-      {
-        $dateTags = sprintf('%s,%s', date('F', $dateTaken), date('Y', $dateTaken));
-        if(!isset($attributes['tags']) || empty($attributes['tags']))
-          $attributes['tags'] = $dateTags;
-        else
-          $attributes['tags'] .= ",{$dateTags}";
-      }
-
-      if(isset($exif['latitude']))
-        $attributes['latitude'] = floatval($exif['latitude']);
-      if(isset($exif['longitude']))
-        $attributes['longitude'] = floatval($exif['longitude']);
-      if(isset($attributes['tags']) && !empty($attributes['tags']))
-        $attributes['tags'] = $tagObj->sanitizeTagsAsString($attributes['tags']);
-
-    // since tags can be created adhoc we need to ensure they're here
-      if(isset($attributes['tags']) && !empty($attributes['tags']))
-        $tagObj->createBatch($attributes['tags']);
-
-      $attributes['owner'] = $this->owner;
-      $attributes['actor'] = $this->getActor();
-
-      $attributes = array_merge(
-        $this->getDefaultAttributes(),
-        array(
-          'hash' => sha1_file($localFile), // fallback if not in $attributes
-          'size' => intval(filesize($localFile)/1024),
-          'filenameOriginal' => $filenameOriginal,
-          'width' => @$exif['width'],
-          'height' => @$exif['height'],
-          'dateTaken' => $dateTaken,
-          'dateTakenDay' => date('d', $dateTaken),
-          'dateTakenMonth' => date('m', $dateTaken),
-          'dateTakenYear' => date('Y', $dateTaken),
-          'dateUploaded' => $dateUploaded,
-          'dateUploadedDay' => date('d', $dateUploaded),
-          'dateUploadedMonth' => date('m', $dateUploaded),
-          'dateUploadedYear' => date('Y', $dateUploaded),
-          'pathOriginal' => $paths['pathOriginal'],
-          'pathBase' => $paths['pathBase']
-        ),
-        $attributes
-      );
-
-      // trim all the attributes
-      foreach($attributes as $key => $val)
-        $attributes[$key] = $this->trim($val);
-
-      $stored = $this->db->putPhoto($id, $attributes, $dateTaken);
-      unlink($localFile);
-      unlink($resp['localFileCopy']);
-      if($stored)
-      {
-        $this->logger->info("Photo ({$id}) successfully stored to the database");
-        return $id;
-      }
-      else
-      {
-        $this->logger->warn("Photo ({$id}) could NOT be stored to the database");
-        return false;
-      }
-    }
-
-    $this->logger->warn("Photo ({$id}) could NOT be stored to the file system");
-    return false;
-  }
-
-
-
 
   /**
     * Generates a path for a custom version of a photo.
@@ -1096,6 +1019,7 @@ class Photo extends BaseModel
     * @param string $options The options for the desired photo version.
     * @return string The path to be used for this photo.
     */
+
   private function generateCustomUrl($basePath, $width, $height, $options)
   {
     $fragment = $this->generateFragment($width, $height, $options);
@@ -1223,7 +1147,7 @@ class Photo extends BaseModel
       $this->logger->warn('Could not load image, possibly an invalid image file.');
       return false;
     }
-    $baseImage->scale($this->config->photos->baseSize, $this->config->photos->baseSize);
+    $baseImage->scale($this->config->photos->baseSize, $this->config->photos->baseSize);  //scale here  load the config
     $baseImage->write($localFileCopy);
     $uploaded = $this->fs->putPhotos(
       array(
